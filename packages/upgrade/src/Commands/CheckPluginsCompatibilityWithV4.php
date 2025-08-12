@@ -148,7 +148,7 @@ class CheckPluginsCompatibilityWithV4 extends Command
     }
 
     /**
-     * Checks if a package requires filament/filament
+     * Checks if a package requires filament/filament by reading its local composer.json
      *
      * @param  string  $package  The full package name
      * @return bool True if the package requires filament/filament
@@ -166,40 +166,24 @@ class CheckPluginsCompatibilityWithV4 extends Command
         }
 
         try {
-            // Check regular releases
-            $url = "https://repo.packagist.org/p2/{$package}.json";
-            $response = Http::get($url);
+            // Read the local composer.json file from vendor directory
+            $composerPath = base_path("vendor/{$package}/composer.json");
 
-            if ($response->ok()) {
-                $data = $response->json();
-                $versions = $data['packages'][$package] ?? [];
-
-                // Check all versions, not just the latest
-                foreach ($versions as $version) {
-                    $requires = $version['require'] ?? [];
-
-                    if (isset($requires['filament/filament'])) {
-                        return true;
-                    }
-                }
+            if (! file_exists($composerPath)) {
+                return false;
             }
 
-            // If not found in regular releases, check dev versions
-            $devUrl = "https://repo.packagist.org/p2/{$package}~dev.json";
-            $devResponse = Http::get($devUrl);
+            $composerContent = file_get_contents($composerPath);
+            $composer = json_decode($composerContent, true);
 
-            if ($devResponse->ok()) {
-                $devData = $devResponse->json();
-                $devVersions = $devData['packages'][$package] ?? [];
-
-                foreach ($devVersions as $version) {
-                    $requires = $version['require'] ?? [];
-
-                    if (isset($requires['filament/filament'])) {
-                        return true;
-                    }
-                }
+            if (! $composer || ! is_array($composer)) {
+                return false;
             }
+
+            // Check if the package requires filament/filament
+            $requires = $composer['require'] ?? [];
+            return isset($requires['filament/filament']);
+
         } catch (Exception $e) {
             $this->error("Error checking if {$package} requires filament/filament: " . $e->getMessage());
         }
