@@ -3,7 +3,6 @@
 use Filament\Actions\Action;
 use Filament\Actions\Testing\TestAction;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tests\Actions\TestCase;
 use Filament\Tests\Fixtures\Pages\Actions;
