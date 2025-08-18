@@ -30,6 +30,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\suggest;
 use function Laravel\Prompts\text;
@@ -204,8 +205,8 @@ class MakeRelationManagerCommand extends Command
             new InputOption(
                 name: 'resource-namespace',
                 shortcut: null,
-                mode: InputOption::VALUE_NONE,
-                description: 'The namespace of the resource class, such as [App\\Filament\\Resources]',
+                mode: InputOption::VALUE_OPTIONAL,
+                description: 'The namespace of the resource class, such as [' . app()->getNamespace() . 'Filament\\Resources]',
             ),
             new InputOption(
                 name: 'soft-deletes',
@@ -400,7 +401,7 @@ class MakeRelationManagerCommand extends Command
             : $this->askForSchema(
                 intialQuestion: 'Would you like to use an existing form schema class?',
                 question: 'Which form schema class would you like to use?',
-                questionPlaceholder: 'App\\Filament\\Resources\\Users\\Schemas\\UserForm',
+                questionPlaceholder: app()->getNamespace() . 'Filament\\Resources\\Users\\Schemas\\UserForm',
             );
     }
 
@@ -463,7 +464,7 @@ class MakeRelationManagerCommand extends Command
             : $this->askForSchema(
                 intialQuestion: 'Would you like to use an existing infolist schema class?',
                 question: 'Which infolist schema class would you like to use?',
-                questionPlaceholder: 'App\\Filament\\Resources\\Users\\Schemas\\UserInfolist',
+                questionPlaceholder: app()->getNamespace() . 'Filament\\Resources\\Users\\Schemas\\UserInfolist',
             );
     }
 
@@ -480,7 +481,7 @@ class MakeRelationManagerCommand extends Command
             : $this->askForSchema(
                 intialQuestion: 'Would you like to use an existing table class?',
                 question: 'Which table class would you like to use?',
-                questionPlaceholder: 'App\\Filament\\Resources\\Users\\Tables\\UsersTable',
+                questionPlaceholder: app()->getNamespace() . 'Filament\\Resources\\Users\\Tables\\UsersTable',
             );
     }
 
