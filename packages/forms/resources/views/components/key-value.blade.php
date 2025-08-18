@@ -46,12 +46,6 @@
                     ->merge($getExtraAlpineAttributes(), escape: false)
                     ->class(['fi-fo-key-value-table-ctn'])
             }}
-            wire:ignore
-            wire:key="{{ $this->getId() }}.{{ $statePath }}.{{ $field::class }}.{{
-                substr(md5(serialize([
-                    $isDisabled,
-                ])), 0, 64)
-            }}"
         >
             <table class="fi-fo-key-value-table">
                 <thead>
