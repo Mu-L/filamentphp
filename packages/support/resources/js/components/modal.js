@@ -16,13 +16,7 @@ export default ({ id }) => ({
     close() {
         this.closeQuietly()
 
-        document.dispatchEvent(
-            new CustomEvent('modal-closed', {
-                bubbles: true,
-                composed: true,
-                detail: { id },
-            }),
-        )
+        this.$dispatch('modal-closed', { id })
     },
 
     closeQuietly() {
