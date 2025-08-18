@@ -35,8 +35,7 @@ try {
             }
         }
     }
-} catch (Throwable $e) {
-    // If composer.lock can't be read, we'll continue and just not perform the Laravel check.
+} catch (Throwable $exception) {
 }
 
 if ($laravelVersion !== null && version_compare($laravelVersion, '11.28.0', '<')) {
@@ -92,21 +91,38 @@ $plugins = array_filter($allPackages, function ($plugin) {
     return false;
 });
 
+// Initialize a shared global cache for Packagist data to be reused by the bin/filament-v4 script.
+$GLOBALS['FILAMENT_UPGRADE_PACKAGIST'] = $GLOBALS['FILAMENT_UPGRADE_PACKAGIST'] ?? [
+    'versions' => [], // [plugin => ['stable' => versionsArray, 'dev' => versionsArray]]
+    'compatibility' => [], // [plugin => ['version' => string, 'isPrerelease' => bool] | null]
+    'plugins' => [], // list of detected third-party plugins
+];
+$GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['plugins'] = array_values($plugins);
+
 $incompatiblePlugins = [];
 
 foreach ($plugins as $plugin) {
     $version = $deps[$plugin];
-    $compatibility = null;
+    $compatibility = $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['compatibility'][$plugin] ?? null;
 
     $url = "https://repo.packagist.org/p2/{$plugin}.json";
 
     try {
-        $json = @file_get_contents($url);
+        $versions = $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['stable'] ?? null;
+        if ($versions === null) {
+            $json = @file_get_contents($url);
 
-        if ($json) {
-            $data = json_decode($json, true);
-            $versions = $data['packages'][$plugin] ?? [];
+            if ($json) {
+                $data = json_decode($json, true);
+                $versions = $data['packages'][$plugin] ?? [];
+                $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['stable'] = $versions;
+            } else {
+                $versions = [];
+                $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['stable'] = $versions;
+            }
+        }
 
+        if ($compatibility === null && $versions) {
             foreach ($versions as $checkingVersion) {
                 $requires = $checkingVersion['require'] ?? [];
 
@@ -126,30 +142,41 @@ foreach ($plugins as $plugin) {
         }
 
         if ($compatibility === null) {
-            $devUrl = "https://repo.packagist.org/p2/{$plugin}~dev.json";
-            $devJson = @file_get_contents($devUrl);
+            $devVersions = $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['dev'] ?? null;
+            if ($devVersions === null) {
+                $devUrl = "https://repo.packagist.org/p2/{$plugin}~dev.json";
+                $devJson = @file_get_contents($devUrl);
 
-            if ($devJson) {
-                $devData = json_decode($devJson, true);
-                $devVersions = $devData['packages'][$plugin] ?? [];
+                if ($devJson) {
+                    $devData = json_decode($devJson, true);
+                    $devVersions = $devData['packages'][$plugin] ?? [];
+                    $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['dev'] = $devVersions;
+                } else {
+                    $devVersions = [];
+                    $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['versions'][$plugin]['dev'] = $devVersions;
+                }
+            }
 
-                foreach ($devVersions as $checkingVersion) {
-                    $requires = $checkingVersion['require'] ?? [];
+            foreach ($devVersions as $checkingVersion) {
+                $requires = $checkingVersion['require'] ?? [];
 
-                    if (isset($requires['filament/filament'])) {
-                        $constraint = $requires['filament/filament'];
+                if (isset($requires['filament/filament'])) {
+                    $constraint = $requires['filament/filament'];
 
-                        if (preg_match("/\^4\.|~4\.|>=4\./", $constraint)) {
-                            $compatibility = [
-                                'version' => $checkingVersion['version'],
-                                'isPrerelease' => true,
-                            ];
+                    if (preg_match("/\^4\.|~4\.|>=4\./", $constraint)) {
+                        $compatibility = [
+                            'version' => $checkingVersion['version'],
+                            'isPrerelease' => true,
+                        ];
 
-                            break;
-                        }
+                        break;
                     }
                 }
             }
+        }
+
+        if (! array_key_exists($plugin, $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['compatibility'])) {
+            $GLOBALS['FILAMENT_UPGRADE_PACKAGIST']['compatibility'][$plugin] = $compatibility;
         }
 
         if ($compatibility === null) {
