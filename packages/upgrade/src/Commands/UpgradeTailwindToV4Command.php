@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 #[AsCommand(name: 'filament:upgrade-tailwind-to-v4')]
 class UpgradeTailwindToV4Command extends Command
@@ -71,13 +72,35 @@ class UpgradeTailwindToV4Command extends Command
         }
 
         if (! $isDryRun) {
-//            $this->runTailwindUpgradeTool();
+            $this->clearPublicFilamentAssets();
+
+            // Clear Laravel caches before running the Tailwind upgrade
+            $this->components->info('Clearing application caches (optimize:clear)...');
+
+            try {
+                $this->call('optimize:clear');
+            } catch (Throwable $exception) {
+                $this->components->warn('Unable to run optimize:clear automatically. You can run it manually if needed.');
+            }
+
+            $this->runTailwindUpgradeTool();
         } else {
             $this->components->info('Dry run complete. Tailwind upgrade tool was not executed.');
         }
 
         $this->newLine();
         $this->components->warn('Tailwind CSS v4 defines configuration in CSS. The per-theme tailwind.config.js file is no longer used. Move any customizations from that file into your CSS using the @theme and other Tailwind v4 directives.');
+
+        if (! $isDryRun) {
+            $this->newLine();
+            $this->components->info('Publishing Filament assets...');
+
+            try {
+                $this->call('filament:assets');
+            } catch (Throwable $exception) {
+                $this->components->warn('Unable to run filament:assets automatically. You can run it manually if needed.');
+            }
+        }
 
         $this->components->info('Upgrade finished.');
 
@@ -208,6 +231,39 @@ class UpgradeTailwindToV4Command extends Command
 
             return true;
         });
+    }
+
+    protected function clearPublicFilamentAssets(): void
+    {
+        $paths = [
+            public_path('css/filament'),
+            public_path('js/filament'),
+        ];
+
+        foreach ($paths as $path) {
+            $relative = $this->relativePath($path);
+            $this->components->task("Clearing {$relative}", function () use ($path) {
+                if (! File::exists($path)) {
+                    return true;
+                }
+
+                try {
+                    File::deleteDirectory($path);
+                } catch (Throwable $exception) {
+                    // Best-effort fallback cleanup
+                    foreach (glob($path . DIRECTORY_SEPARATOR . '*') ?: [] as $item) {
+                        if (is_dir($item)) {
+                            @rmdir($item);
+                        } else {
+                            @unlink($item);
+                        }
+                    }
+                    @rmdir($path);
+                }
+
+                return true;
+            });
+        }
     }
 
     protected function runTailwindUpgradeTool(): void
