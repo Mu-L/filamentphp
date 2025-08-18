@@ -106,7 +106,7 @@ export default function markdownEditorFormComponent({
             // This is necessary to prevent the editor from being initialized before the modal is fully visible,
             // which can cause it to render without any content.
             if (this.$root.closest('.fi-modal')) {
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise((resolve) => setTimeout(resolve, 300))
             }
 
             if (this.$root._editor) {
