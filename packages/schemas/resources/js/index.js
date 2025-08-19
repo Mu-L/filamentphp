@@ -78,7 +78,7 @@ document.addEventListener('alpine:init', () => {
 
     window.Alpine.data(
         'filamentSchemaComponent',
-        ({ path, containerPath, isLive, $wire  }) => ({
+        ({ path, containerPath, isLive, $wire }) => ({
             $statePath: path,
             $get: (path, isAbsolute) => {
                 return $wire.$get(
