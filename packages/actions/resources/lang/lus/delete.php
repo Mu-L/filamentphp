@@ -56,14 +56,14 @@ return [
 
             'deleted_partial' => [
                 'title' => 'Deleted :count of :total',
-                'missing_authorization_failure_message' => 'Hemi :count paih phalna I neilo.',
-                'missing_processing_failure_message' => ':count hi a paih theihloh.',
+                'missing_authorization_failure_message' => ':count delete phalna I neilo.',
+                'missing_processing_failure_message' => ':count hi a delete theihloh.',
             ],
 
             'deleted_none' => [
                 'title' => 'Failed to delete',
-                'missing_authorization_failure_message' => 'Hemi :count paih phalna I neilo.',
-                'missing_processing_failure_message' => ':count hi a paih theihloh.',
+                'missing_authorization_failure_message' => ':count delete phalna I neilo.',
+                'missing_processing_failure_message' => ':count hi a delete theihloh.',
             ],
 
         ],

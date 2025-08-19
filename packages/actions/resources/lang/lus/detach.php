@@ -23,7 +23,7 @@ return [
         'notifications' => [
 
             'detached' => [
-                'title' => 'Paih a ni e.',
+                'title' => 'Paih a ni.',
             ],
 
         ],
@@ -51,7 +51,7 @@ return [
         'notifications' => [
 
             'detached' => [
-                'title' => 'Paih then a ni e.',
+                'title' => 'Paih then a ni.',
             ],
 
         ],

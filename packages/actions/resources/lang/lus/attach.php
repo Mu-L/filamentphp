@@ -35,7 +35,7 @@ return [
         'notifications' => [
 
             'attached' => [
-                'title' => 'Dahbelh a ni e.',
+                'title' => 'Dahbelh a ni.',
             ],
 
         ],

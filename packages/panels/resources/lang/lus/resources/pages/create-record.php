@@ -29,7 +29,7 @@ return [
     'notifications' => [
 
         'created' => [
-            'title' => 'A thar siam ani e.',
+            'title' => 'A thar siam ani.',
         ],
 
     ],
