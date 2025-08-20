@@ -274,7 +274,7 @@ public function table(Table $table): Table
         ->columns([
             // ...
         ])
-        ->defaultSortfunction (Builder $query): Builder {
+        ->defaultSort(function (Builder $query): Builder {
             return $query->orderBy('stock');
         });
 }
