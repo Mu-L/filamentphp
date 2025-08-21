@@ -15,7 +15,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 
 class Group extends Component
 {
@@ -288,14 +287,6 @@ class Group extends Component
         // Handle HtmlString objects (trusted content)
         if ($title instanceof HtmlString) {
             return $title;
-        }
-
-        // Ensure the title is a string for security
-        if (!is_string($title)) {
-            throw new InvalidArgumentException(
-                'Group title must be a string or HtmlString instance. ' .
-                'Use Illuminate\Support\HtmlString for HTML content.'
-            );
         }
 
         // Apply HTML sanitization if html() method was called
