@@ -284,12 +284,10 @@ class Group extends Component
             $title = $title->getLabel();
         }
 
-        // Handle HtmlString objects (trusted content)
         if ($title instanceof HtmlString) {
             return $title;
         }
 
-        // Apply HTML sanitization if html() method was called
         if ($this->isHtml()) {
             $title = Str::sanitizeHtml($title);
         }
@@ -302,7 +300,6 @@ class Group extends Component
             $title = $title->translatedFormat($this->getTable()->getDefaultDateDisplayFormat());
         }
 
-        // Return HtmlString if html() was enabled, otherwise return string
         return $this->isHtml() ? new HtmlString($title) : $title;
     }
 
