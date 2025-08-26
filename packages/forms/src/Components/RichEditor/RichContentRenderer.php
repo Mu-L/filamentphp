@@ -86,11 +86,6 @@ class RichContentRenderer implements Htmlable
     protected ?Closure $nodeProcessor = null;
 
     /**
-     * @var array<string, array<string, mixed>>
-     */
-    protected array $nodeAttributes = [];
-
-    /**
      * @param  string | array<string, mixed> | null  $content
      */
     public function __construct(string | array | null $content = null)
