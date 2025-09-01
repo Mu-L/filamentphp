@@ -894,10 +894,11 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
                 return;
             }
 
-            $isEmpty = ($value['type'] === 'doc')
-                && (count($value['content']) === 1)
-                && ($value['content'][0]['type'] === 'paragraph')
-                && ((! isset($value['content'][0]['content'])) || blank($value['content'][0]['content']));
+            $isEmpty = is_array($value)
+                && (($value['type'] ?? null) === 'doc')
+                && (count($value['content'] ?? []) === 1)
+                && (($value['content'][0]['type'] ?? null) === 'paragraph')
+                && blank($value['content'][0]['content'] ?? []);
 
             if ($isEmpty) {
                 $fail('validation.required')->translate();
