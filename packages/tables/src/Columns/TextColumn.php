@@ -175,6 +175,15 @@ class TextColumn extends Column implements HasEmbeddedView
                 'fi-inline' => $this->isInline(),
             ]);
 
+        $alignment = $this->getAlignment();
+
+        $attributes = $attributes
+            ->class([
+                'fi-ta-text-has-badges' => $isBadge,
+                'fi-wrapped' => $this->canWrap(),
+                ($alignment instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : ''),
+            ]);
+
         if (blank($state)) {
             $attributes = $attributes
                 ->merge([
@@ -252,15 +261,6 @@ class TextColumn extends Column implements HasEmbeddedView
             $stateCount = 1;
             $formatState = fn (mixed $stateItem): string => $stateItem;
         }
-
-        $alignment = $this->getAlignment();
-
-        $attributes = $attributes
-            ->class([
-                'fi-ta-text-has-badges' => $isBadge,
-                'fi-wrapped' => $this->canWrap(),
-                ($alignment instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : ''),
-            ]);
 
         $lineClamp = $this->getLineClamp();
         $iconPosition = $this->getIconPosition();
