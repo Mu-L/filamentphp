@@ -827,7 +827,7 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
         $rules = [];
 
         if (filled($maxLength = $this->getMaxLength())) {
-            $rules[] = function (string $_attribute, mixed $value, Closure $fail) use ($maxLength): void {
+            $rules[] = function (string $attribute, mixed $value, Closure $fail) use ($maxLength): void {
                 if (blank($value)) {
                     return;
                 }
@@ -845,7 +845,7 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
         }
 
         if (filled($minLength = $this->getMinLength())) {
-            $rules[] = function (string $_attribute, mixed $value, Closure $fail) use ($minLength): void {
+            $rules[] = function (string $attribute, mixed $value, Closure $fail) use ($minLength): void {
                 if (blank($value)) {
                     return;
                 }
@@ -863,7 +863,7 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
         }
 
         if (filled($length = $this->getLength())) {
-            $rules[] = function (string $_attribute, mixed $value, Closure $fail) use ($length): void {
+            $rules[] = function (string $attribute, mixed $value, Closure $fail) use ($length): void {
                 if (blank($value)) {
                     return;
                 }
@@ -889,15 +889,15 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
             return 'nullable';
         }
 
-        return function (string $_attribute, mixed $value, Closure $fail): void {
+        return function (string $attribute, mixed $value, Closure $fail): void {
             if (blank($value)) {
                 return;
             }
 
-            $isEmpty = $value['type'] === 'doc' &&
-                count($value['content']) === 1 &&
-                $value['content'][0]['type'] === 'paragraph' &&
-                (! isset($value['content'][0]['content']) || blank($value['content'][0]['content']));
+            $isEmpty = ($value['type'] === 'doc')
+                && (count($value['content']) === 1)
+                && ($value['content'][0]['type'] === 'paragraph')
+                && ((! isset($value['content'][0]['content'])) || blank($value['content'][0]['content']));
 
             if ($isEmpty) {
                 $fail('validation.required')->translate();
