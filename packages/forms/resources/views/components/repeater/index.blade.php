@@ -129,11 +129,8 @@
                                         class="fi-fo-repeater-item-header-start-actions"
                                     >
                                         @if ($reorderActionIsVisible)
-                                            <li
-                                                x-sortable-handle
-                                                x-on:click.stop
-                                            >
-                                                {{ $reorderAction }}
+                                            <li x-on:click.stop>
+                                                {{ $reorderAction->extraAttributes(['x-sortable-handle' => true]) }}
                                             </li>
                                         @endif
 
