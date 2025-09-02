@@ -46,7 +46,7 @@
     @endif
 
     <x-filament::section
-        :id="$getId().'::section-ctn'"
+        :id="$getId() . '::section-ctn'"
         :after-header="$afterHeader"
         :aside="$isAside"
         :collapsed="$isCollapsed"
