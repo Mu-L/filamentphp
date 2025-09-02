@@ -133,7 +133,7 @@ return [
 
             'only_trashed' => 'רק רשומות שנמחקו',
 
-            'with_trashed' => 'עם רשומות שנמחקו',
+            'with_trashed' => 'כולל רשומות שנמחקו',
 
             'without_trashed' => 'ללא רשומות שנמחקו',
 
