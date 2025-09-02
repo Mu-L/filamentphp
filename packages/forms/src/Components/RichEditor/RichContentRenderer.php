@@ -351,18 +351,18 @@ class RichContentRenderer implements Htmlable
     }
 
     /**
-     * @return string|array<string, mixed>
+     * @return array<string, mixed>
      */
-    public function toJson(bool $decoded = false): string | array
+    public function toArray(): array
     {
         if (empty($this->content)) {
-            return $decoded ? [] : '';
+            return [];
         }
 
         $editor = $this->getEditor();
         $this->processMergeTags($editor);
 
-        return $decoded ? json_decode($editor->getJSON(), true) : $editor->getJSON();
+        return json_decode($editor->getJSON(), true);
     }
 
     /**
