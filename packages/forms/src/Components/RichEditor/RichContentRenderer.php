@@ -355,6 +355,10 @@ class RichContentRenderer implements Htmlable
      */
     public function toJson(bool $decoded = false): string | array
     {
+        if (empty($this->content)) {
+            return $decoded ? [] : '';
+        }
+
         $editor = $this->getEditor();
 
         if ($decoded) {
