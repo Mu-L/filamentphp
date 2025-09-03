@@ -33,7 +33,7 @@ return [
         'actions' => [
 
             'export' => [
-                'label' => 'ייצוא',
+                'label' => 'ייצא',
             ],
 
         ],
