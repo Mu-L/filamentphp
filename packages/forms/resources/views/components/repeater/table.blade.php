@@ -114,7 +114,7 @@
                                         >
                                             @if ($reorderActionIsVisible)
                                                 <div x-on:click.stop>
-                                                    {{ $reorderAction->extraAttributes(['x-sortable-handle' => true]) }}
+                                                    {{ $reorderAction->extraAttributes(['x-sortable-handle' => true], merge: true) }}
                                                 </div>
                                             @endif
 

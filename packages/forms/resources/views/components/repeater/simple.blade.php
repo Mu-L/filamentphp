@@ -77,7 +77,7 @@
                             <ul class="fi-fo-simple-repeater-item-actions">
                                 @if ($reorderActionIsVisible)
                                     <li x-on:click.stop>
-                                        {{ $reorderAction->extraAttributes(['x-sortable-handle' => true]) }}
+                                        {{ $reorderAction->extraAttributes(['x-sortable-handle' => true], merge: true) }}
                                     </li>
                                 @endif
 
