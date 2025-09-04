@@ -266,6 +266,7 @@
                                 {{ $item }}
                             @endif
                         </div>
+
                         @if (! $loop->last)
                             @if ($isAddable && $addBetweenAction(['afterItem' => $itemKey])->isVisible())
                                 <div

@@ -25,9 +25,11 @@ export default (Alpine) => {
                     oldDraggableIndex,
                     newDraggableIndex,
                 } = event
+
                 if (oldDraggableIndex === newDraggableIndex) {
                     return
                 }
+
                 const draggableSelector = this.options.draggable
                 const previousNode = parentNode.querySelectorAll(
                     `:scope > ${draggableSelector}`,
