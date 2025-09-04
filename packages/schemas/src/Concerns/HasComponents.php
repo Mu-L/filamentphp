@@ -104,16 +104,17 @@ trait HasComponents
             }
 
             foreach ($component->getChildSchemas() as $childSchema) {
-                $nestedKeySegment = $componentNestedContainerKey;
+                $childSchemaNestedContainerKey = $componentNestedContainerKey;
 
-                if (filled($componentNestedContainerKey)) {
+                if (filled($childSchemaNestedContainerKey)) {
                     $childSchemaName = $childSchema->getKey(isAbsolute: false);
-                    if (filled($childSchemaName) && str($componentNestedContainerKey)->contains("{$childSchemaName}.")) {
-                        $nestedKeySegment = (string) str($componentNestedContainerKey)->after("{$childSchemaName}.");
+
+                    if (filled($childSchemaName) && str($childSchemaNestedContainerKey)->startsWith("{$childSchemaName}.")) {
+                        $childSchemaNestedContainerKey = (string) str($childSchemaNestedContainerKey)->after("{$childSchemaName}.");
                     }
                 }
 
-                if ($action = $childSchema->getAction($actionName, $nestedKeySegment)) {
+                if ($action = $childSchema->getAction($actionName, $childSchemaNestedContainerKey)) {
                     return $action;
                 }
             }
