@@ -11,7 +11,23 @@ return [
             ],
 
             'add' => [
+
                 'label' => 'הוסף :label',
+
+                'modal' => [
+
+                    'label' => 'הוספת :label',
+
+                    'actions' => [
+
+                        'add' => [
+                            'label' => 'הוסף',
+                        ],
+
+                    ],
+
+                ],
+
             ],
 
             'add_between' => [
@@ -129,7 +145,7 @@ return [
                 ],
 
                 'save' => [
-                    'label' => 'שמור',
+                    'label' => 'שמירה',
                 ],
 
                 'zoom_100' => [
@@ -421,6 +437,8 @@ return [
 
             'create_option' => [
 
+                'label' => 'יצירה',
+
                 'modal' => [
 
                     'heading' => 'יצירה',
@@ -428,8 +446,9 @@ return [
                     'actions' => [
 
                         'create' => [
-                            'label' => 'צור',
+                            'label' => 'יצירה',
                         ],
+
                         'create_another' => [
                             'label' => 'צור וצור עוד אחד',
                         ],
@@ -442,6 +461,8 @@ return [
 
             'edit_option' => [
 
+                'label' => 'עריכה',
+
                 'modal' => [
 
                     'heading' => 'עריכה',
@@ -449,7 +470,7 @@ return [
                     'actions' => [
 
                         'save' => [
-                            'label' => 'שמור',
+                            'label' => 'שמירה',
                         ],
 
                     ],
@@ -481,6 +502,15 @@ return [
 
     'tags_input' => [
         'placeholder' => 'תגית חדשה',
+    ],
+
+    'toggle_buttons' => [
+
+        'boolean' => [
+            'true' => 'כן',
+            'false' => 'לא',
+        ],
+
     ],
 
 ];
