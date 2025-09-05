@@ -34,11 +34,8 @@ export default function sliderFormComponent({
                 direction: isRtl ? 'rtl' : 'ltr',
                 connect: fillTrack,
                 format: {
-                    from: (value) => value,
-                    to: (value) =>
-                        decimalPlaces !== null
-                            ? +value.toFixed(decimalPlaces)
-                            : value,
+                    from: (value) => +String(value),
+                    to: (value) => +value.toFixed(+decimalPlaces),
                 },
                 limit: maxDifference,
                 margin: minDifference,
