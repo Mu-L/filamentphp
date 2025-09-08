@@ -250,10 +250,6 @@ class RichContentRenderer implements Htmlable
 
     protected function processNodes(Editor $editor): void
     {
-        if (empty($this->nodeProcessors)) {
-            return;
-        }
-
         foreach ($this->nodeProcessors as $processor) {
             $editor->descendants($processor);
         }
