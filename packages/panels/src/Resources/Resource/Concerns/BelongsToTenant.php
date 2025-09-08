@@ -23,7 +23,7 @@ trait BelongsToTenant
     {
         $tenant ??= Filament::getTenant();
 
-        if ($query->getModel()::class === Filament::getCurrentPanel()?->getTenantModel()) {
+        if ($query->getModel()::class === $tenant::class) {
             return $query->whereKey($tenant);
         }
 
