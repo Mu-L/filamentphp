@@ -24,7 +24,7 @@ trait BelongsToTenant
         $tenant ??= Filament::getTenant();
 
         if ($query->getModel()::class === Filament::getCurrentPanel()?->getTenantModel()) {
-            return $query->where($tenant->getTable() . '.' . $tenant->getKeyName(), $tenant->getKey());
+            return $query->whereKey($tenant);
         }
 
         $tenantOwnershipRelationship = static::getTenantOwnershipRelationship($query->getModel());
