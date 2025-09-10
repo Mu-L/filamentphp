@@ -79,6 +79,7 @@
                     @foreach ($containers as $uuid => $item)
                         @php
                             $itemLabel = $getItemLabel($uuid);
+                            $hasItemNumbers = $hasItemNumbers();
                             $visibleExtraItemActions = array_filter(
                                 $extraItemActions,
                                 fn (Action $action): bool => $action(['item' => $uuid])->isVisible(),
@@ -154,6 +155,10 @@
                                             ])
                                         >
                                             {{ $itemLabel }}
+
+                                            @if ($hasItemNumbers)
+                                                {{ $loop->iteration }}
+                                            @endif
                                         </h4>
                                     @endif
 
