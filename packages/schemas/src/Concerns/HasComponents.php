@@ -54,18 +54,24 @@ trait HasComponents
     public function getAction(string $actionName, ?string $nestedContainerKey = null): ?Action
     {
         foreach ($this->getComponents() as $component) {
-            if (
-                ($component instanceof Action) &&
-                ($component->getName() === $actionName)
-            ) {
-                return $component;
+            if (blank($nestedContainerKey)) {
+                if (
+                    ($component instanceof Action) &&
+                    ($component->getName() === $actionName)
+                ) {
+                    return $component;
+                }
+
+                if (
+                    ($component instanceof ActionGroup) &&
+                    ($action = ($component->getFlatActions()[$actionName] ?? null))
+                ) {
+                    return $action;
+                }
             }
 
-            if (
-                ($component instanceof ActionGroup) &&
-                ($action = ($component->getFlatActions()[$actionName] ?? null))
-            ) {
-                return $action;
+            if (($component instanceof Action) || ($component instanceof ActionGroup)) {
+                continue;
             }
 
             $componentKey = $component->getKey(isAbsolute: false);
@@ -98,7 +104,28 @@ trait HasComponents
             }
 
             foreach ($component->getChildSchemas() as $childSchema) {
-                if ($action = $childSchema->getAction($actionName, $componentNestedContainerKey)) {
+                $childSchemaName = $childSchema->getKey(isAbsolute: false);
+
+                if (filled($childSchemaName)) {
+                    if (blank($componentNestedContainerKey)) {
+                        continue;
+                    }
+
+                    if (
+                        ($componentNestedContainerKey !== $childSchemaName)
+                        && (! str($componentNestedContainerKey)->startsWith("{$childSchemaName}."))
+                    ) {
+                        continue;
+                    }
+
+                    $childSchemaNestedContainerKey = ($componentNestedContainerKey === $childSchemaName)
+                        ? null
+                        : (string) str($componentNestedContainerKey)->after("{$childSchemaName}.");
+                } else {
+                    $childSchemaNestedContainerKey = $componentNestedContainerKey;
+                }
+
+                if ($action = $childSchema->getAction($actionName, $childSchemaNestedContainerKey)) {
                     return $action;
                 }
             }
