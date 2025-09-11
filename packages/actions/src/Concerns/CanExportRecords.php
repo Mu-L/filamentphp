@@ -156,16 +156,16 @@ trait CanExportRecords
             $maxRows = $action->getMaxRows() ?? $totalRows;
 
             if ($maxRows < $totalRows) {
-                $this->failureNotification(
+                $action->failureNotification(
                     Notification::make()
                         ->title(__('filament-actions::export.notifications.max_rows.title'))
                         ->body(trans_choice('filament-actions::export.notifications.max_rows.body', $maxRows, [
                             'count' => Number::format($maxRows),
                         ]))
-                        ->danger()
+                        ->danger(),
                 );
 
-                $this->failure();
+                $action->failure();
 
                 return;
             }
@@ -272,21 +272,27 @@ trait CanExportRecords
                 )
                 ->dispatch();
 
-            $this->successNotificationTitle(__('filament-actions::export.notifications.started.title'));
             if (
-                (filled($jobConnection) && ($jobConnection !== 'sync')) ||
-                (blank($jobConnection) && (config('queue.default') !== 'sync'))
+                ($jobConnection === 'sync')
+                || (blank($jobConnection) && (config('queue.default') === 'sync'))
             ) {
-                $this->successNotification(
-                    Notification::make()
-                        ->title($action->getSuccessNotificationTitle())
-                        ->body(trans_choice('filament-actions::export.notifications.started.body', $export->total_rows, [
-                            'count' => Number::format($export->total_rows),
-                        ]))
-                        ->success()
-                );
+                $action->successNotification(null);
+                $action->successNotificationTitle(null);
+
+                return;
             }
+
+            $action->successNotification(
+                Notification::make()
+                    ->title($action->getSuccessNotificationTitle())
+                    ->body(trans_choice('filament-actions::export.notifications.started.body', $export->total_rows, [
+                        'count' => Number::format($export->total_rows),
+                    ]))
+                    ->success(),
+            );
         });
+
+        $this->successNotificationTitle(__('filament-actions::export.notifications.started.title'));
 
         $this->defaultColor('gray');
 

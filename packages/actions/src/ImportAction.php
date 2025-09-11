@@ -202,13 +202,16 @@ class ImportAction extends Action
             $maxRows = $action->getMaxRows() ?? $totalRows;
 
             if ($maxRows < $totalRows) {
-                Notification::make()
-                    ->title(__('filament-actions::import.notifications.max_rows.title'))
-                    ->body(trans_choice('filament-actions::import.notifications.max_rows.body', $maxRows, [
-                        'count' => Number::format($maxRows),
-                    ]))
-                    ->danger()
-                    ->send();
+                $action->failureNotification(
+                    Notification::make()
+                        ->title(__('filament-actions::import.notifications.max_rows.title'))
+                        ->body(trans_choice('filament-actions::import.notifications.max_rows.body', $maxRows, [
+                            'count' => Number::format($maxRows),
+                        ]))
+                        ->danger(),
+                );
+
+                $action->failure();
 
                 return;
             }
@@ -280,6 +283,13 @@ class ImportAction extends Action
                         return;
                     }
 
+                    if (
+                        ($jobConnection === 'sync')
+                        || (blank($jobConnection) && (config('queue.default') === 'sync'))
+                    ) {
+                        return;
+                    }
+
                     $failedRowsCount = $import->getFailedRowsCount();
 
                     Notification::make()
@@ -309,14 +319,7 @@ class ImportAction extends Action
                                     ->markAsRead(),
                             ]),
                         )
-                        ->when(
-                            ($jobConnection === 'sync') ||
-                                (blank($jobConnection) && (config('queue.default') === 'sync')),
-                            fn (Notification $notification) => $notification
-                                ->persistent()
-                                ->send(),
-                            fn (Notification $notification) => $notification->sendToDatabase($import->user, isEventDispatched: true),
-                        );
+                        ->sendToDatabase($import->user, isEventDispatched: true);
                 })
                 ->dispatch();
 
@@ -324,14 +327,59 @@ class ImportAction extends Action
                 (filled($jobConnection) && ($jobConnection !== 'sync')) ||
                 (blank($jobConnection) && (config('queue.default') !== 'sync'))
             ) {
-                Notification::make()
-                    ->title($action->getSuccessNotificationTitle())
-                    ->body(trans_choice('filament-actions::import.notifications.started.body', $import->total_rows, [
-                        'count' => Number::format($import->total_rows),
-                    ]))
-                    ->success()
-                    ->send();
+                $action->successNotification(
+                    Notification::make()
+                        ->title($action->getSuccessNotificationTitle())
+                        ->body(trans_choice('filament-actions::import.notifications.started.body', $import->total_rows, [
+                            'count' => Number::format($import->total_rows),
+                        ]))
+                        ->success(),
+                );
+
+                return;
             }
+
+            $import->refresh();
+
+            $failedRowsCount = $import->getFailedRowsCount();
+
+            $notification = Notification::make()
+                ->title($import->importer::getCompletedNotificationTitle($import))
+                ->body($import->importer::getCompletedNotificationBody($import))
+                ->when(
+                    ! $failedRowsCount,
+                    fn (Notification $notification) => $notification->success(),
+                )
+                ->when(
+                    $failedRowsCount && ($failedRowsCount < $import->total_rows),
+                    fn (Notification $notification) => $notification->warning(),
+                )
+                ->when(
+                    $failedRowsCount === $import->total_rows,
+                    fn (Notification $notification) => $notification->danger(),
+                )
+                ->when(
+                    $failedRowsCount,
+                    fn (Notification $notification) => $notification->actions([
+                        Action::make('downloadFailedRowsCsv')
+                            ->label(trans_choice('filament-actions::import.notifications.completed.actions.download_failed_rows_csv.label', $failedRowsCount, [
+                                'count' => Number::format($failedRowsCount),
+                            ]))
+                            ->color('danger')
+                            ->url(URL::signedRoute('filament.imports.failed-rows.download', ['authGuard' => $authGuard, 'import' => $import], absolute: false), shouldOpenInNewTab: true)
+                            ->markAsRead(),
+                    ]),
+                )
+                ->persistent();
+
+            if ($failedRowsCount > 0) {
+                $action->failureNotification($notification);
+                $action->failure();
+
+                return;
+            }
+
+            $action->successNotification($notification);
         });
 
         $this->registerModalActions([
