@@ -36,7 +36,7 @@ In addition to specifying how many columns a layout component should have, you m
 - You can pass an integer like `columnSpan(2)`. This integer is the number of columns that are consumed on the `lg` breakpoint and higher. All smaller devices span just 1 column.
 - `columnSpan(['md' => 2, 'xl' => 4])` will make the component fill up to 2 columns on medium devices, and up to 4 columns on extra large devices. The default breakpoint for smaller devices uses 1 column, unless you use a `default` array key.
 - `columnSpan('full')` will make the component fill the full width of the parent grid on the `lg` breakpoint and higher, regardless of how many columns there are. All smaller devices span just 1 column.
-- `columnSpanFull()` will make the component fill the full width of the parent grid, regardless of how many columns it has.
+- `columnSpanFull()` will make the component fill the full width of the parent grid on all devices, regardless of how many columns it has.
 
 <UtilityInjection set="schemaComponents" version="4.x">As well as allowing a static value, the `columnSpan()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>
 
