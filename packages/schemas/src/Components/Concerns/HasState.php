@@ -274,6 +274,10 @@ trait HasState
      */
     public function getStateToDehydrate(mixed $state): array
     {
+        if ($state === '') {
+            $state = null;
+        }
+
         foreach ($this->getStateCasts() as $stateCast) {
             $state = $stateCast->get($state);
         }

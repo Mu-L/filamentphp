@@ -228,22 +228,16 @@ trait HasState
             }
 
             if (filled($component->getStatePath(isAbsolute: false))) {
-                $componentStatePath = $component->getStatePath();
-                $componentState = data_get($state, $componentStatePath);
-
-                if ($componentState === '') {
-                    data_set($state, $componentStatePath, null);
-                    $componentState = null;
-                }
-
                 if (! $component->mutatesDehydratedState()) {
                     continue;
                 }
 
+                $componentStatePath = $component->getStatePath();
+
                 data_set(
                     $state,
                     $componentStatePath,
-                    $component->mutateDehydratedState($componentState),
+                    $component->mutateDehydratedState(data_get($state, $componentStatePath)),
                 );
             }
         }
