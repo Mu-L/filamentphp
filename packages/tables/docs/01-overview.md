@@ -357,7 +357,7 @@ public function table(Table $table): Table
 }
 ```
 
-The field used to sort should be an integer and you will need to sort the table schema by the same attribute to see the changes reflected in the UI after saving. If you're using mass assignment protection on your model, you will also need to add the `sort` attribute to the `$fillable` array there.
+The `sort` database column in this example will be used to store the order of records in the table. Whenever you order a database query using that column, they will be returned in the defined order. If you're using mass assignment protection on your model, you will also need to add the `sort` attribute to the `$fillable` array there.
 
 When making the table reorderable, a new button will be available on the table to toggle reordering.
 
