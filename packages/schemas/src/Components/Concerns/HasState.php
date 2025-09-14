@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Livewire\Livewire;
 use LogicException;
 
@@ -168,7 +169,13 @@ trait HasState
 
         if (filled($components = $this->getComponentsToPartiallyRenderAfterStateUpdated())) {
             foreach ($components as $key) {
-                $this->getLivewire()->getSchemaComponent($this->resolveRelativeKey($key))->partiallyRender();
+                $component = $this->getLivewire()->getSchemaComponent($this->resolveRelativeKey($key), withHidden: true);
+
+                if (! $component) {
+                    throw new InvalidArgumentException("Could not find component [{$key}] to partially render.");
+                }
+
+                $component->partiallyRender();
             }
         }
 
