@@ -461,22 +461,29 @@ class Action extends ViewComponent implements Arrayable
     {
         $context = [];
 
-        if ($record = $this->getRecord()) {
-            $context['recordKey'] = $this->resolveRecordKey($record);
-        }
-
-        if (filled($schemaComponentKey = ($this->getSchemaContainer() ?? $this->getSchemaComponent())?->getKey())) {
-            $context['schemaComponent'] = $schemaComponentKey;
-        }
-
         $table = $this->getTable();
 
         if ($table) {
             $context['table'] = true;
         }
 
+        $record = $this->getRecord();
+
+        if ($record && (
+            (! $table)
+            || (! $record instanceof Model)
+            || blank($table->getModel())
+            || ($record::class === $table->getModel())
+        )) {
+            $context['recordKey'] = $this->resolveRecordKey($record);
+        }
+
         if ($table && $this->isBulk()) {
             $context['bulk'] = true;
+        }
+
+        if (filled($schemaComponentKey = ($this->getSchemaContainer() ?? $this->getSchemaComponent())?->getKey())) {
+            $context['schemaComponent'] = $schemaComponentKey;
         }
 
         return $context;
