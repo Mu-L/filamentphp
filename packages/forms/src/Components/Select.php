@@ -13,7 +13,6 @@ use Filament\Schemas\Components\StateCasts\BooleanStateCast;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
 use Filament\Schemas\Components\StateCasts\EnumArrayStateCast;
 use Filament\Schemas\Components\StateCasts\EnumStateCast;
-use Filament\Schemas\Components\StateCasts\NumberStateCast;
 use Filament\Schemas\Components\StateCasts\StringArrayStateCast;
 use Filament\Schemas\Components\StateCasts\StringStateCast;
 use Filament\Schemas\Schema;

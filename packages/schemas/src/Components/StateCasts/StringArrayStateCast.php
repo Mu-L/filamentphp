@@ -2,7 +2,6 @@
 
 namespace Filament\Schemas\Components\StateCasts;
 
-use BackedEnum;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
 
 class StringArrayStateCast implements StateCast
