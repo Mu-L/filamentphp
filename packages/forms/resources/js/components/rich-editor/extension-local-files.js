@@ -1,39 +1,6 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 
-const defaultAllowedMimeTypes = [
-    'image/png',
-    'image/jpeg',
-    'image/gif',
-    'image/webp',
-]
-const defaultMaxFileSize = 10 * 1024 * 1024 // 10MB in bytes
-const defaultFileSizeExceededMessage = 'File size exceeds maximum allowed'
-const defaultInvalidMimeTypeMessage = 'File type is not allowed'
-
-const validateFile = (
-    file,
-    allowedMimeTypes,
-    maxFileSize,
-    invalidMimeTypeMessage,
-    fileSizeExceededMessage,
-) => {
-    const errors = []
-
-    if (!allowedMimeTypes.includes(file.type)) {
-        errors.push(invalidMimeTypeMessage || defaultInvalidMimeTypeMessage)
-    }
-
-    if (file.size > +maxFileSize * 1024) {
-        errors.push(fileSizeExceededMessage || defaultFileSizeExceededMessage)
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors,
-    }
-}
-
 const dispatchFormEvent = (editorView, name, detail = {}) => {
     editorView.dom.closest('form')?.dispatchEvent(
         new CustomEvent(name, {
@@ -44,21 +11,37 @@ const dispatchFormEvent = (editorView, name, detail = {}) => {
     )
 }
 
+const validateFiles = ({
+    files,
+    acceptedTypes,
+    acceptedTypesValidationMessage,
+    maxSize,
+    maxSizeValidationMessage,
+}) => {
+    for (const file of files) {
+        if (!acceptedTypes.includes(file.type)) {
+            return acceptedTypesValidationMessage
+        }
+
+        if (file.size > +maxSize * 1024) {
+            return maxSizeValidationMessage
+        }
+    }
+
+    return null
+}
+
 const LocalFilesPlugin = ({
     editor,
+    acceptedTypes,
+    acceptedTypesValidationMessage,
     get$WireUsing,
     key,
+    maxSize,
+    maxSizeValidationMessage,
     statePath,
     uploadingMessage,
-    allowedMimeTypes,
-    maxFileSize,
-    fileSizeExceededMessage,
-    invalidMimeTypeMessage,
 }) => {
-    // Use defaults if not provided from PHP
-    const effectiveAllowedMimeTypes =
-        allowedMimeTypes || defaultAllowedMimeTypes
-    const effectiveMaxFileSize = maxFileSize || defaultMaxFileSize
     const getFileAttachmentUrl = (fileKey) =>
         get$WireUsing().callSchemaComponentMethod(
             key,
@@ -76,44 +59,34 @@ const LocalFilesPlugin = ({
                     return false
                 }
 
-                const allFiles = Array.from(event.dataTransfer.files)
-                const validFiles = []
-                const rejectedFiles = []
+                const files = Array.from(event.dataTransfer.files)
 
-                allFiles.forEach((file) => {
-                    const validation = validateFile(
-                        file,
-                        effectiveAllowedMimeTypes,
-                        effectiveMaxFileSize,
-                        invalidMimeTypeMessage,
-                        fileSizeExceededMessage,
-                    )
-                    if (validation.isValid) {
-                        validFiles.push(file)
-                    } else {
-                        rejectedFiles.push({ file, errors: validation.errors })
-                    }
+                const validationMessage = validateFiles({
+                    files,
+                    acceptedTypes,
+                    acceptedTypesValidationMessage,
+                    maxSize,
+                    maxSizeValidationMessage,
                 })
 
-                if (rejectedFiles.length > 0) {
-                    const errorMessages = rejectedFiles
-                        .map(
-                            ({ file, errors }) =>
-                                `<p>${file.name}: ${errors.join(', ')}</p>`,
-                        )
-                        .join('')
+                if (validationMessage) {
+                    editorView.dom.dispatchEvent(
+                        new CustomEvent('rich-editor-file-validation-message', {
+                            bubbles: true,
+                            detail: {
+                                key,
+                                livewireId: get$WireUsing().id,
+                                validationMessage,
+                            },
+                        }),
+                    )
 
-                    new FilamentNotification()
-                        .body(errorMessages)
-                        .danger()
-                        .send()
-                }
-
-                if (!validFiles.length) {
                     return false
                 }
 
-                const files = validFiles
+                if (!files.length) {
+                    return false
+                }
 
                 dispatchFormEvent(editorView, 'form-processing-started', {
                     message: uploadingMessage,
@@ -139,22 +112,6 @@ const LocalFilesPlugin = ({
                         }),
                     )
 
-                    const fileReader = new FileReader()
-
-                    fileReader.readAsDataURL(file)
-                    fileReader.onload = () => {
-                        editor
-                            .chain()
-                            .insertContentAt(position?.pos ?? 0, {
-                                type: 'image',
-                                attrs: {
-                                    class: 'fi-loading',
-                                    src: fileReader.result,
-                                },
-                            })
-                            .run()
-                    }
-
                     let fileKey = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(
                         /[018]/g,
                         (c) =>
@@ -176,10 +133,12 @@ const LocalFilesPlugin = ({
 
                                 editor
                                     .chain()
-                                    .updateAttributes('image', {
-                                        class: null,
-                                        id: fileKey,
-                                        src: url,
+                                    .insertContentAt(position?.pos ?? 0, {
+                                        type: 'image',
+                                        attrs: {
+                                            id: fileKey,
+                                            src: url,
+                                        },
                                     })
                                     .run()
 
@@ -219,44 +178,34 @@ const LocalFilesPlugin = ({
                     return false
                 }
 
-                const allFiles = Array.from(event.clipboardData.files)
-                const validFiles = []
-                const rejectedFiles = []
+                const files = Array.from(event.clipboardData.files)
 
-                allFiles.forEach((file) => {
-                    const validation = validateFile(
-                        file,
-                        effectiveAllowedMimeTypes,
-                        effectiveMaxFileSize,
-                        invalidMimeTypeMessage,
-                        fileSizeExceededMessage,
-                    )
-                    if (validation.isValid) {
-                        validFiles.push(file)
-                    } else {
-                        rejectedFiles.push({ file, errors: validation.errors })
-                    }
+                const validationMessage = validateFiles({
+                    files,
+                    acceptedTypes,
+                    acceptedTypesValidationMessage,
+                    maxSize,
+                    maxSizeValidationMessage,
                 })
 
-                if (rejectedFiles.length > 0) {
-                    const errorMessages = rejectedFiles
-                        .map(
-                            ({ file, errors }) =>
-                                `<p>${file.name}: ${errors.join(', ')}</p>`,
-                        )
-                        .join('')
+                if (validationMessage) {
+                    editorView.dom.dispatchEvent(
+                        new CustomEvent('rich-editor-file-validation-message', {
+                            bubbles: true,
+                            detail: {
+                                key,
+                                livewireId: get$WireUsing().id,
+                                validationMessage,
+                            },
+                        }),
+                    )
 
-                    new FilamentNotification()
-                        .body(errorMessages)
-                        .danger()
-                        .send()
-                }
-
-                if (!validFiles.length) {
                     return false
                 }
 
-                const files = validFiles
+                if (!files.length) {
+                    return false
+                }
 
                 event.preventDefault()
                 event.stopPropagation()
@@ -276,22 +225,6 @@ const LocalFilesPlugin = ({
                             },
                         }),
                     )
-
-                    const fileReader = new FileReader()
-
-                    fileReader.readAsDataURL(file)
-                    fileReader.onload = () => {
-                        editor
-                            .chain()
-                            .insertContentAt(editor.state.selection.anchor, {
-                                type: 'image',
-                                attrs: {
-                                    class: 'fi-loading',
-                                    src: fileReader.result,
-                                },
-                            })
-                            .run()
-                    }
 
                     let fileKey = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(
                         /[018]/g,
@@ -314,11 +247,16 @@ const LocalFilesPlugin = ({
 
                                 editor
                                     .chain()
-                                    .updateAttributes('image', {
-                                        class: null,
-                                        id: fileKey,
-                                        src: url,
-                                    })
+                                    .insertContentAt(
+                                        editor.state.selection.anchor,
+                                        {
+                                            type: 'image',
+                                            attrs: {
+                                                id: fileKey,
+                                                src: url,
+                                            },
+                                        },
+                                    )
                                     .run()
 
                                 editor.setEditable(true)
@@ -357,14 +295,14 @@ export default Extension.create({
 
     addOptions() {
         return {
+            acceptedTypes: [],
+            acceptedTypesValidationMessage: null,
             key: null,
+            maxSize: null,
+            maxSizeValidationMessage: null,
             statePath: null,
             uploadingMessage: null,
             get$WireUsing: null,
-            allowedMimeTypes: defaultAllowedMimeTypes,
-            maxFileSize: defaultMaxFileSize,
-            fileSizeExceededMessage: defaultFileSizeExceededMessage,
-            invalidMimeTypeMessage: defaultInvalidMimeTypeMessage,
         }
     },
 

@@ -27,8 +27,8 @@ class AttachFilesAction
                     ->label(filled($arguments['src'] ?? null)
                         ? __('filament-forms::components.rich_editor.actions.attach_files.modal.form.file.label.existing')
                         : __('filament-forms::components.rich_editor.actions.attach_files.modal.form.file.label.new'))
-                    ->acceptedFileTypes(fn () => $component->getAcceptedFileTypes())
-                    ->maxSize(fn () => $component->getMaxSize())
+                    ->acceptedFileTypes($component->getFileAttachmentsAcceptedFileTypes())
+                    ->maxSize($component->getFileAttachmentsMaxSize())
                     ->storeFiles(false)
                     ->required(blank($arguments['src'] ?? null))
                     ->hiddenLabel(blank($arguments['src'] ?? null)),

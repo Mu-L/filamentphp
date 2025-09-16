@@ -35,21 +35,21 @@ import Underline from '@tiptap/extension-underline'
 import getMergeTagSuggestion from './merge-tag-suggestion.js'
 
 export default async ({
+    acceptedFileTypes,
+    acceptedFileTypesValidationMessage,
     customExtensionUrls,
     deleteCustomBlockButtonIconHtml,
     editCustomBlockButtonIconHtml,
     editCustomBlockUsing,
     insertCustomBlockUsing,
     key,
+    maxFileSize,
+    maxFileSizeValidationMessage,
     mergeTags,
     noMergeTagSearchResultsMessage,
     placeholder,
     statePath,
     uploadingFileMessage,
-    allowedMimeTypes,
-    maxFileSize,
-    fileSizeExceededMessage,
-    invalidMimeTypeMessage,
     $wire,
 }) => [
     Blockquote,
@@ -84,14 +84,14 @@ export default async ({
     }),
     ListItem,
     LocalFiles.configure({
+        acceptedTypes: acceptedFileTypes,
+        acceptedTypesValidationMessage: acceptedFileTypesValidationMessage,
         get$WireUsing: () => $wire,
         key,
+        maxSize: maxFileSize,
+        maxSizeValidationMessage: maxFileSizeValidationMessage,
         statePath,
         uploadingMessage: uploadingFileMessage,
-        allowedMimeTypes,
-        maxFileSize,
-        fileSizeExceededMessage,
-        invalidMimeTypeMessage,
     }),
     ...(mergeTags.length
         ? [
