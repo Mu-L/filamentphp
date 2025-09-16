@@ -145,7 +145,7 @@ class TestsActions
                 ...$actions,
             ]);
 
-            if ($action && filled($arguments = Arr::last($actions)['arguments'])) {
+            if ($action && filled($arguments = Arr::last($actions)['arguments'] ?? [])) {
                 $action->mergeArguments($arguments);
             }
 
@@ -188,7 +188,7 @@ class TestsActions
                 return $this;
             }
 
-            if ($action && filled($arguments = Arr::last($actions)['arguments'])) {
+            if ($action && filled($arguments = Arr::last($actions)['arguments'] ?? [])) {
                 $action->mergeArguments($arguments);
             }
 
