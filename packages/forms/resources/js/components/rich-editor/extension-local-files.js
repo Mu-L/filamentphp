@@ -1,12 +1,23 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 
-const defaultAllowedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+const defaultAllowedMimeTypes = [
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/webp',
+]
 const defaultMaxFileSize = 10 * 1024 * 1024 // 10MB in bytes
 const defaultFileSizeExceededMessage = 'File size exceeds maximum allowed'
 const defaultInvalidMimeTypeMessage = 'File type is not allowed'
 
-const validateFile = (file, allowedMimeTypes, maxFileSize, invalidMimeTypeMessage, fileSizeExceededMessage) => {
+const validateFile = (
+    file,
+    allowedMimeTypes,
+    maxFileSize,
+    invalidMimeTypeMessage,
+    fileSizeExceededMessage,
+) => {
     const errors = []
 
     if (!allowedMimeTypes.includes(file.type)) {
@@ -19,7 +30,7 @@ const validateFile = (file, allowedMimeTypes, maxFileSize, invalidMimeTypeMessag
 
     return {
         isValid: errors.length === 0,
-        errors
+        errors,
     }
 }
 
@@ -34,18 +45,19 @@ const dispatchFormEvent = (editorView, name, detail = {}) => {
 }
 
 const LocalFilesPlugin = ({
-                              editor,
-                              get$WireUsing,
-                              key,
-                              statePath,
-                              uploadingMessage,
-                              allowedMimeTypes,
-                              maxFileSize,
-                              fileSizeExceededMessage,
-                              invalidMimeTypeMessage,
-                          }) => {
+    editor,
+    get$WireUsing,
+    key,
+    statePath,
+    uploadingMessage,
+    allowedMimeTypes,
+    maxFileSize,
+    fileSizeExceededMessage,
+    invalidMimeTypeMessage,
+}) => {
     // Use defaults if not provided from PHP
-    const effectiveAllowedMimeTypes = allowedMimeTypes || defaultAllowedMimeTypes
+    const effectiveAllowedMimeTypes =
+        allowedMimeTypes || defaultAllowedMimeTypes
     const effectiveMaxFileSize = maxFileSize || defaultMaxFileSize
     const getFileAttachmentUrl = (fileKey) =>
         get$WireUsing().callSchemaComponentMethod(
@@ -68,8 +80,14 @@ const LocalFilesPlugin = ({
                 const validFiles = []
                 const rejectedFiles = []
 
-                allFiles.forEach(file => {
-                    const validation = validateFile(file, effectiveAllowedMimeTypes, effectiveMaxFileSize, invalidMimeTypeMessage, fileSizeExceededMessage)
+                allFiles.forEach((file) => {
+                    const validation = validateFile(
+                        file,
+                        effectiveAllowedMimeTypes,
+                        effectiveMaxFileSize,
+                        invalidMimeTypeMessage,
+                        fileSizeExceededMessage,
+                    )
                     if (validation.isValid) {
                         validFiles.push(file)
                     } else {
@@ -78,9 +96,12 @@ const LocalFilesPlugin = ({
                 })
 
                 if (rejectedFiles.length > 0) {
-                    const errorMessages = rejectedFiles.map(({ file, errors }) =>
-                        `<p>${file.name}: ${errors.join(', ')}</p>`
-                    ).join('')
+                    const errorMessages = rejectedFiles
+                        .map(
+                            ({ file, errors }) =>
+                                `<p>${file.name}: ${errors.join(', ')}</p>`,
+                        )
+                        .join('')
 
                     new FilamentNotification()
                         .body(errorMessages)
@@ -202,8 +223,14 @@ const LocalFilesPlugin = ({
                 const validFiles = []
                 const rejectedFiles = []
 
-                allFiles.forEach(file => {
-                    const validation = validateFile(file, effectiveAllowedMimeTypes, effectiveMaxFileSize, invalidMimeTypeMessage, fileSizeExceededMessage)
+                allFiles.forEach((file) => {
+                    const validation = validateFile(
+                        file,
+                        effectiveAllowedMimeTypes,
+                        effectiveMaxFileSize,
+                        invalidMimeTypeMessage,
+                        fileSizeExceededMessage,
+                    )
                     if (validation.isValid) {
                         validFiles.push(file)
                     } else {
@@ -212,9 +239,12 @@ const LocalFilesPlugin = ({
                 })
 
                 if (rejectedFiles.length > 0) {
-                    const errorMessages = rejectedFiles.map(({ file, errors }) =>
-                        `<p>${file.name}: ${errors.join(', ')}</p>`
-                    ).join('')
+                    const errorMessages = rejectedFiles
+                        .map(
+                            ({ file, errors }) =>
+                                `<p>${file.name}: ${errors.join(', ')}</p>`,
+                        )
+                        .join('')
 
                     new FilamentNotification()
                         .body(errorMessages)
