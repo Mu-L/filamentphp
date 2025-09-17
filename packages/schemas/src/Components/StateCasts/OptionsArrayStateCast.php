@@ -5,10 +5,10 @@ namespace Filament\Schemas\Components\StateCasts;
 use BackedEnum;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
 
-class StringArrayStateCast implements StateCast
+class OptionsArrayStateCast implements StateCast
 {
     /**
-     * @return array<string>
+     * @return array<string | int>
      */
     public function get(mixed $state): array
     {
