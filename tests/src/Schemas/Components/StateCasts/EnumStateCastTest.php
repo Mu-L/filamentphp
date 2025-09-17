@@ -67,9 +67,9 @@ it('can get the value from an integer backed enum in the setter', function (Inte
     expect($cast->set($enum))
         ->toBe($integer);
 })->with([
-    [IntegerBackedEnum::One, 1],
-    [IntegerBackedEnum::Two, 2],
-    [IntegerBackedEnum::Three, 3],
+    [IntegerBackedEnum::One, '1'],
+    [IntegerBackedEnum::Two, '2'],
+    [IntegerBackedEnum::Three, '3'],
 ]);
 
 it('can ignore the value in the setter if it is not an enum', function ($value): void {
