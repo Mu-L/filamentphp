@@ -10,6 +10,8 @@ import {
     DetailsContent,
 } from '@tiptap/extension-details'
 import Document from '@tiptap/extension-document'
+import Grid from './extension-grid.js'
+import GridColumn from './extension-grid-column.js'
 import HardBreak from '@tiptap/extension-hard-break'
 import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
@@ -69,6 +71,8 @@ export default async ({
     Document,
     Dropcursor,
     Gapcursor,
+    Grid,
+    GridColumn,
     HardBreak,
     Heading,
     Highlight,
