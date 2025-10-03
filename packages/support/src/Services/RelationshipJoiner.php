@@ -9,7 +9,6 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Kirschbaum\PowerJoins\JoinsHelper;
 
 class RelationshipJoiner
 {
