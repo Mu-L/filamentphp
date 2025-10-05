@@ -60,9 +60,9 @@ trait HasChildComponents
     }
 
     /**
-     * @return array<Component | Action | ActionGroup | string | Htmlable>
+     * @return array<Component | Action | ActionGroup | string | Htmlable> | Schema
      */
-    public function getDefaultChildComponents(): array
+    public function getDefaultChildComponents(): array | Schema
     {
         return $this->evaluate($this->childComponents['default'] ?? []) ?? [];
     }
