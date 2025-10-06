@@ -98,7 +98,7 @@ class Constraint extends Component
                                         ->live()
                                         ->afterStateUpdated(fn (Select $component, Get $get) => $component
                                             ->getContainer()
-                                            ->getComponent('settings')
+                                            ->getComponent('settings', withHidden: true)
                                             ->getChildSchema()
                                             ->fill($get('settings'))),
                                     Group::make(function (Get $get): array {
