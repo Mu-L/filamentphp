@@ -103,6 +103,21 @@ class PostsQueryBuilderTable extends Component implements HasActions, HasSchemas
                         DateConstraint::make('author_verified_at')
                             ->label('Author Verified At')
                             ->relationship(name: 'author', titleAttribute: 'email_verified_at'),
+                        TextConstraint::make('author.email')
+                            ->label('Author Email (Dot Syntax)'),
+                        BooleanConstraint::make('author.has_email_authentication')
+                            ->label('Author Has Email Auth (Dot Syntax)'),
+                        NumberConstraint::make('author.score')
+                            ->label('Author Score (Dot Syntax)'),
+                        SelectConstraint::make('author.status')
+                            ->label('Author Status (Dot Syntax)')
+                            ->options([
+                                'active' => 'Active',
+                                'inactive' => 'Inactive',
+                                'pending' => 'Pending',
+                            ]),
+                        DateConstraint::make('author.email_verified_at')
+                            ->label('Author Verified At (Dot Syntax)'),
                     ]),
             ])
             ->paginated(false);

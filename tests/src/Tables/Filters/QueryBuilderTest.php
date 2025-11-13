@@ -1010,7 +1010,7 @@ it('can filter records using text constraint with relationship method', function
         ->assertCanSeeTableRecords($matchingPosts->merge($nonMatchingPosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_email',
+                'type' => 'author.email',
                 'data' => [
                     'operator' => 'contains',
                     'settings' => ['text' => 'example.com'],
@@ -1032,7 +1032,7 @@ it('can filter records using boolean constraint with relationship method', funct
         ->assertCanSeeTableRecords($activePosts->merge($inactivePosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_has_email_auth',
+                'type' => 'author.has_email_authentication',
                 'data' => [
                     'operator' => 'isTrue',
                     'settings' => [],
@@ -1054,7 +1054,7 @@ it('can filter records using boolean constraint with relationship method and inv
         ->assertCanSeeTableRecords($activePosts->merge($inactivePosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_has_email_auth',
+                'type' => 'author.has_email_authentication',
                 'data' => [
                     'operator' => 'isTrue.inverse',
                     'settings' => [],
@@ -1076,7 +1076,7 @@ it('can filter records using number constraint with relationship method', functi
         ->assertCanSeeTableRecords($highScorePosts->merge($lowScorePosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_score',
+                'type' => 'author.score',
                 'data' => [
                     'operator' => 'isMin',
                     'settings' => ['number' => 80, 'aggregate' => null],
@@ -1098,7 +1098,7 @@ it('can filter records using number constraint with relationship method and inve
         ->assertCanSeeTableRecords($highScorePosts->merge($lowScorePosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_score',
+                'type' => 'author.score',
                 'data' => [
                     'operator' => 'isMin.inverse',
                     'settings' => ['number' => 80, 'aggregate' => null],
@@ -1120,7 +1120,7 @@ it('can filter records using select constraint with relationship method', functi
         ->assertCanSeeTableRecords($activePosts->merge($pendingPosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_status',
+                'type' => 'author.status',
                 'data' => [
                     'operator' => 'is',
                     'settings' => ['value' => 'active'],
@@ -1142,7 +1142,7 @@ it('can filter records using select constraint with relationship method and inve
         ->assertCanSeeTableRecords($activePosts->merge($pendingPosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_status',
+                'type' => 'author.status',
                 'data' => [
                     'operator' => 'is.inverse',
                     'settings' => ['value' => 'active'],
@@ -1168,7 +1168,7 @@ it('can filter records using date constraint with relationship method', function
         ->assertCanSeeTableRecords($recentPosts->merge($oldPosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_verified_at',
+                'type' => 'author.email_verified_at',
                 'data' => [
                     'operator' => 'isAfter',
                     'settings' => ['date' => $filterDate],
@@ -1194,7 +1194,7 @@ it('can filter records using date constraint with relationship method and invers
         ->assertCanSeeTableRecords($recentPosts->merge($oldPosts))
         ->tap(applyQueryBuilderFilter([
             [
-                'type' => 'author_verified_at',
+                'type' => 'author.email_verified_at',
                 'data' => [
                     'operator' => 'isAfter.inverse',
                     'settings' => ['date' => $filterDate],
@@ -1206,6 +1206,600 @@ it('can filter records using date constraint with relationship method and invers
 });
 
 it('can combine relationship constraints with regular constraints', function (): void {
+    $activeHighScoreAuthor = User::factory()->create([
+        'score' => 95,
+        'status' => 'active',
+    ]);
+    $matchingPosts = Post::factory()->count(3)->create([
+        'author_id' => $activeHighScoreAuthor->id,
+        'is_published' => true,
+    ]);
+
+    $activeHighScoreUnpublished = Post::factory()->count(2)->create([
+        'author_id' => $activeHighScoreAuthor->id,
+        'is_published' => false,
+    ]);
+
+    $inactiveAuthor = User::factory()->create([
+        'score' => 95,
+        'status' => 'inactive',
+    ]);
+    $nonMatchingPosts = Post::factory()->count(3)->create([
+        'author_id' => $inactiveAuthor->id,
+        'is_published' => true,
+    ]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($matchingPosts->merge($activeHighScoreUnpublished)->merge($nonMatchingPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author.score',
+                'data' => [
+                    'operator' => 'isMin',
+                    'settings' => ['number' => 80, 'aggregate' => null],
+                ],
+            ],
+            [
+                'type' => 'author.status',
+                'data' => [
+                    'operator' => 'is',
+                    'settings' => ['value' => 'active'],
+                ],
+            ],
+            [
+                'type' => 'is_published',
+                'data' => [
+                    'operator' => 'isTrue',
+                    'settings' => [],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($matchingPosts)
+        ->assertCanNotSeeTableRecords($activeHighScoreUnpublished->merge($nonMatchingPosts));
+});
+
+it('can filter records using number constraint with sum aggregate on relationship', function (): void {
+    // Create user with high total rating across all posts
+    $highTotalUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $highTotalUser->id,
+        'rating' => 8, // Total: 24
+    ]);
+
+    // Create user with low total rating across all posts
+    $lowTotalUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $lowTotalUser->id,
+        'rating' => 2, // Total: 6
+    ]);
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highTotalUser, $lowTotalUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'posts.rating',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 20, 'aggregate' => 'sum'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highTotalUser])
+        ->assertCanNotSeeTableRecords([$lowTotalUser]);
+});
+
+it('can filter records using number constraint with average aggregate on relationship', function (): void {
+    // Create user with high average rating
+    $highAvgUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $highAvgUser->id,
+        'rating' => 9, // Average: 9
+    ]);
+
+    // Create user with low average rating
+    $lowAvgUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $lowAvgUser->id,
+        'rating' => 3, // Average: 3
+    ]);
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highAvgUser, $lowAvgUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'posts.rating',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 7, 'aggregate' => 'avg'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highAvgUser])
+        ->assertCanNotSeeTableRecords([$lowAvgUser]);
+});
+
+it('can filter records using number constraint with min aggregate on relationship', function (): void {
+    // Create user where even the lowest rating is high
+    $highMinUser = User::factory()->create();
+    Post::factory()->create([
+        'author_id' => $highMinUser->id,
+        'rating' => 8,
+    ]);
+    Post::factory()->create([
+        'author_id' => $highMinUser->id,
+        'rating' => 9,
+    ]);
+    Post::factory()->create([
+        'author_id' => $highMinUser->id,
+        'rating' => 10,
+    ]);
+
+    // Create user with at least one low rating
+    $lowMinUser = User::factory()->create();
+    Post::factory()->create([
+        'author_id' => $lowMinUser->id,
+        'rating' => 2, // This is the min
+    ]);
+    Post::factory()->create([
+        'author_id' => $lowMinUser->id,
+        'rating' => 9,
+    ]);
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highMinUser, $lowMinUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'posts.rating',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 7, 'aggregate' => 'min'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highMinUser])
+        ->assertCanNotSeeTableRecords([$lowMinUser]);
+});
+
+it('can filter records using number constraint with max aggregate on relationship', function (): void {
+    // Create user with at least one very high rating
+    $highMaxUser = User::factory()->create();
+    Post::factory()->create([
+        'author_id' => $highMaxUser->id,
+        'rating' => 10, // This is the max
+    ]);
+    Post::factory()->create([
+        'author_id' => $highMaxUser->id,
+        'rating' => 5,
+    ]);
+
+    // Create user where even the highest rating is low
+    $lowMaxUser = User::factory()->create();
+    Post::factory()->create([
+        'author_id' => $lowMaxUser->id,
+        'rating' => 3,
+    ]);
+    Post::factory()->create([
+        'author_id' => $lowMaxUser->id,
+        'rating' => 4, // This is the max
+    ]);
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highMaxUser, $lowMaxUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'posts.rating',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 8, 'aggregate' => 'max'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highMaxUser])
+        ->assertCanNotSeeTableRecords([$lowMaxUser]);
+});
+
+it('can filter records using number constraint with aggregate and inverse operator', function (): void {
+    // Create user with high average rating
+    $highAvgUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $highAvgUser->id,
+        'rating' => 9,
+    ]);
+
+    // Create user with low average rating
+    $lowAvgUser = User::factory()->create();
+    Post::factory()->count(3)->create([
+        'author_id' => $lowAvgUser->id,
+        'rating' => 3,
+    ]);
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highAvgUser, $lowAvgUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'posts.rating',
+                    'data' => [
+                        'operator' => 'isMin.inverse', // Less than
+                        'settings' => ['number' => 7, 'aggregate' => 'avg'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$lowAvgUser])
+        ->assertCanNotSeeTableRecords([$highAvgUser]);
+});
+
+it('can filter records using number constraint with sum aggregate on `BelongsToMany` relationship', function (): void {
+    // Create user with high total budget across all teams
+    $highTotalUser = User::factory()->create();
+    $highTeams = Team::factory()->count(3)->create(['budget' => 5000]); // Total: 15000
+    $highTotalUser->teams()->attach($highTeams->pluck('id'));
+
+    // Create user with low total budget across all teams
+    $lowTotalUser = User::factory()->create();
+    $lowTeams = Team::factory()->count(2)->create(['budget' => 1000]); // Total: 2000
+    $lowTotalUser->teams()->attach($lowTeams->pluck('id'));
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highTotalUser, $lowTotalUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'teams.budget',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 10000, 'aggregate' => 'sum'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highTotalUser])
+        ->assertCanNotSeeTableRecords([$lowTotalUser]);
+});
+
+it('can filter records using number constraint with average aggregate on `BelongsToMany` relationship', function (): void {
+    // Create user with high average budget
+    $highAvgUser = User::factory()->create();
+    $highTeams = Team::factory()->count(3)->create(['budget' => 8000]); // Average: 8000
+    $highAvgUser->teams()->attach($highTeams->pluck('id'));
+
+    // Create user with low average budget
+    $lowAvgUser = User::factory()->create();
+    $lowTeams = Team::factory()->count(3)->create(['budget' => 2000]); // Average: 2000
+    $lowAvgUser->teams()->attach($lowTeams->pluck('id'));
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highAvgUser, $lowAvgUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'teams.budget',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 5000, 'aggregate' => 'avg'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highAvgUser])
+        ->assertCanNotSeeTableRecords([$lowAvgUser]);
+});
+
+it('can filter records using number constraint with min aggregate on `BelongsToMany` relationship', function (): void {
+    // Create user where even the lowest budget is high
+    $highMinUser = User::factory()->create();
+    $highMinTeams = collect([
+        Team::factory()->create(['budget' => 6000]),
+        Team::factory()->create(['budget' => 8000]),
+        Team::factory()->create(['budget' => 10000]),
+    ]);
+    $highMinUser->teams()->attach($highMinTeams->pluck('id'));
+
+    // Create user with at least one low budget team
+    $lowMinUser = User::factory()->create();
+    $lowMinTeams = collect([
+        Team::factory()->create(['budget' => 1000]), // This is the min
+        Team::factory()->create(['budget' => 9000]),
+    ]);
+    $lowMinUser->teams()->attach($lowMinTeams->pluck('id'));
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highMinUser, $lowMinUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'teams.budget',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 5000, 'aggregate' => 'min'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highMinUser])
+        ->assertCanNotSeeTableRecords([$lowMinUser]);
+});
+
+it('can filter records using number constraint with max aggregate on `BelongsToMany` relationship', function (): void {
+    // Create user with at least one very high budget team
+    $highMaxUser = User::factory()->create();
+    $highMaxTeams = collect([
+        Team::factory()->create(['budget' => 15000]), // This is the max
+        Team::factory()->create(['budget' => 3000]),
+    ]);
+    $highMaxUser->teams()->attach($highMaxTeams->pluck('id'));
+
+    // Create user where even the highest budget is low
+    $lowMaxUser = User::factory()->create();
+    $lowMaxTeams = collect([
+        Team::factory()->create(['budget' => 2000]),
+        Team::factory()->create(['budget' => 3000]), // This is the max
+    ]);
+    $lowMaxUser->teams()->attach($lowMaxTeams->pluck('id'));
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highMaxUser, $lowMaxUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'teams.budget',
+                    'data' => [
+                        'operator' => 'isMin',
+                        'settings' => ['number' => 10000, 'aggregate' => 'max'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$highMaxUser])
+        ->assertCanNotSeeTableRecords([$lowMaxUser]);
+});
+
+it('can filter records using number constraint with aggregate and inverse operator on `BelongsToMany` relationship', function (): void {
+    // Create user with high average budget
+    $highAvgUser = User::factory()->create();
+    $highTeams = Team::factory()->count(3)->create(['budget' => 8000]);
+    $highAvgUser->teams()->attach($highTeams->pluck('id'));
+
+    // Create user with low average budget
+    $lowAvgUser = User::factory()->create();
+    $lowTeams = Team::factory()->count(3)->create(['budget' => 2000]);
+    $lowAvgUser->teams()->attach($lowTeams->pluck('id'));
+
+    livewire(UsersQueryBuilderTable::class)
+        ->assertCanSeeTableRecords([$highAvgUser, $lowAvgUser])
+        ->tap(fn ($livewire) => $livewire
+            ->set('tableDeferredFilters.query_builder.rules', [
+                [
+                    'type' => 'teams.budget',
+                    'data' => [
+                        'operator' => 'isMin.inverse', // Less than
+                        'settings' => ['number' => 5000, 'aggregate' => 'avg'],
+                    ],
+                ],
+            ])
+            ->call('applyTableFilters'))
+        ->assertCanSeeTableRecords([$lowAvgUser])
+        ->assertCanNotSeeTableRecords([$highAvgUser]);
+});
+
+// Legacy `relationship()` method tests - these ensure backwards compatibility
+
+it('can filter records using text constraint with relationship method (legacy `relationship()`)', function (): void {
+    $matchingAuthor = User::factory()->create(['email' => 'john@example.com']);
+    $matchingPosts = Post::factory()->count(5)->create(['author_id' => $matchingAuthor->id]);
+
+    $nonMatchingAuthor = User::factory()->create(['email' => 'jane@different.com']);
+    $nonMatchingPosts = Post::factory()->count(5)->create(['author_id' => $nonMatchingAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($matchingPosts->merge($nonMatchingPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_email',
+                'data' => [
+                    'operator' => 'contains',
+                    'settings' => ['text' => 'example.com'],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($matchingPosts)
+        ->assertCanNotSeeTableRecords($nonMatchingPosts);
+});
+
+it('can filter records using boolean constraint with relationship method (legacy `relationship()`)', function (): void {
+    $activeAuthor = User::factory()->create(['has_email_authentication' => true]);
+    $activePosts = Post::factory()->count(5)->create(['author_id' => $activeAuthor->id]);
+
+    $inactiveAuthor = User::factory()->create(['has_email_authentication' => false]);
+    $inactivePosts = Post::factory()->count(5)->create(['author_id' => $inactiveAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($activePosts->merge($inactivePosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_has_email_auth',
+                'data' => [
+                    'operator' => 'isTrue',
+                    'settings' => [],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($activePosts)
+        ->assertCanNotSeeTableRecords($inactivePosts);
+});
+
+it('can filter records using boolean constraint with relationship method and inverse operator (legacy `relationship()`)', function (): void {
+    $activeAuthor = User::factory()->create(['has_email_authentication' => true]);
+    $activePosts = Post::factory()->count(5)->create(['author_id' => $activeAuthor->id]);
+
+    $inactiveAuthor = User::factory()->create(['has_email_authentication' => false]);
+    $inactivePosts = Post::factory()->count(5)->create(['author_id' => $inactiveAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($activePosts->merge($inactivePosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_has_email_auth',
+                'data' => [
+                    'operator' => 'isTrue.inverse',
+                    'settings' => [],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($inactivePosts)
+        ->assertCanNotSeeTableRecords($activePosts);
+});
+
+it('can filter records using number constraint with relationship method (legacy `relationship()`)', function (): void {
+    $highScoreAuthor = User::factory()->create(['score' => 95]);
+    $highScorePosts = Post::factory()->count(5)->create(['author_id' => $highScoreAuthor->id]);
+
+    $lowScoreAuthor = User::factory()->create(['score' => 45]);
+    $lowScorePosts = Post::factory()->count(5)->create(['author_id' => $lowScoreAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($highScorePosts->merge($lowScorePosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_score',
+                'data' => [
+                    'operator' => 'isMin',
+                    'settings' => ['number' => 80, 'aggregate' => null],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($highScorePosts)
+        ->assertCanNotSeeTableRecords($lowScorePosts);
+});
+
+it('can filter records using number constraint with relationship method and inverse operator (legacy `relationship()`)', function (): void {
+    $highScoreAuthor = User::factory()->create(['score' => 95]);
+    $highScorePosts = Post::factory()->count(5)->create(['author_id' => $highScoreAuthor->id]);
+
+    $lowScoreAuthor = User::factory()->create(['score' => 45]);
+    $lowScorePosts = Post::factory()->count(5)->create(['author_id' => $lowScoreAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($highScorePosts->merge($lowScorePosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_score',
+                'data' => [
+                    'operator' => 'isMin.inverse',
+                    'settings' => ['number' => 80, 'aggregate' => null],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($lowScorePosts)
+        ->assertCanNotSeeTableRecords($highScorePosts);
+});
+
+it('can filter records using select constraint with relationship method (legacy `relationship()`)', function (): void {
+    $activeAuthor = User::factory()->create(['status' => 'active']);
+    $activePosts = Post::factory()->count(5)->create(['author_id' => $activeAuthor->id]);
+
+    $pendingAuthor = User::factory()->create(['status' => 'pending']);
+    $pendingPosts = Post::factory()->count(5)->create(['author_id' => $pendingAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($activePosts->merge($pendingPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_status',
+                'data' => [
+                    'operator' => 'is',
+                    'settings' => ['value' => 'active'],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($activePosts)
+        ->assertCanNotSeeTableRecords($pendingPosts);
+});
+
+it('can filter records using select constraint with relationship method and inverse operator (legacy `relationship()`)', function (): void {
+    $activeAuthor = User::factory()->create(['status' => 'active']);
+    $activePosts = Post::factory()->count(5)->create(['author_id' => $activeAuthor->id]);
+
+    $pendingAuthor = User::factory()->create(['status' => 'pending']);
+    $pendingPosts = Post::factory()->count(5)->create(['author_id' => $pendingAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($activePosts->merge($pendingPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_status',
+                'data' => [
+                    'operator' => 'is.inverse',
+                    'settings' => ['value' => 'active'],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($pendingPosts)
+        ->assertCanNotSeeTableRecords($activePosts);
+});
+
+it('can filter records using date constraint with relationship method (legacy `relationship()`)', function (): void {
+    $recentDate = '2024-06-20';
+    $oldDate = '2024-01-10';
+    $filterDate = '2024-06-15';
+
+    $recentAuthor = User::factory()->create(['email_verified_at' => $recentDate]);
+    $recentPosts = Post::factory()->count(5)->create(['author_id' => $recentAuthor->id]);
+
+    $oldAuthor = User::factory()->create(['email_verified_at' => $oldDate]);
+    $oldPosts = Post::factory()->count(5)->create(['author_id' => $oldAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($recentPosts->merge($oldPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_verified_at',
+                'data' => [
+                    'operator' => 'isAfter',
+                    'settings' => ['date' => $filterDate],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($recentPosts)
+        ->assertCanNotSeeTableRecords($oldPosts);
+});
+
+it('can filter records using date constraint with relationship method and inverse operator (legacy `relationship()`)', function (): void {
+    $recentDate = '2024-06-20';
+    $oldDate = '2024-01-10';
+    $filterDate = '2024-06-15';
+
+    $recentAuthor = User::factory()->create(['email_verified_at' => $recentDate]);
+    $recentPosts = Post::factory()->count(5)->create(['author_id' => $recentAuthor->id]);
+
+    $oldAuthor = User::factory()->create(['email_verified_at' => $oldDate]);
+    $oldPosts = Post::factory()->count(5)->create(['author_id' => $oldAuthor->id]);
+
+    livewire(PostsQueryBuilderTable::class)
+        ->assertCanSeeTableRecords($recentPosts->merge($oldPosts))
+        ->tap(applyQueryBuilderFilter([
+            [
+                'type' => 'author_verified_at',
+                'data' => [
+                    'operator' => 'isAfter.inverse',
+                    'settings' => ['date' => $filterDate],
+                ],
+            ],
+        ]))
+        ->assertCanSeeTableRecords($oldPosts)
+        ->assertCanNotSeeTableRecords($recentPosts);
+});
+
+it('can combine relationship constraints with regular constraints (legacy `relationship()`)', function (): void {
     $activeHighScoreAuthor = User::factory()->create([
         'score' => 95,
         'status' => 'active',
@@ -1258,7 +1852,7 @@ it('can combine relationship constraints with regular constraints', function ():
         ->assertCanNotSeeTableRecords($activeHighScoreUnpublished->merge($nonMatchingPosts));
 });
 
-it('can filter records using number constraint with sum aggregate on relationship', function (): void {
+it('can filter records using number constraint with sum aggregate on relationship (legacy `relationship()`)', function (): void {
     // Create user with high total rating across all posts
     $highTotalUser = User::factory()->create();
     Post::factory()->count(3)->create([
@@ -1290,7 +1884,7 @@ it('can filter records using number constraint with sum aggregate on relationshi
         ->assertCanNotSeeTableRecords([$lowTotalUser]);
 });
 
-it('can filter records using number constraint with average aggregate on relationship', function (): void {
+it('can filter records using number constraint with average aggregate on relationship (legacy `relationship()`)', function (): void {
     // Create user with high average rating
     $highAvgUser = User::factory()->create();
     Post::factory()->count(3)->create([
@@ -1322,7 +1916,7 @@ it('can filter records using number constraint with average aggregate on relatio
         ->assertCanNotSeeTableRecords([$lowAvgUser]);
 });
 
-it('can filter records using number constraint with min aggregate on relationship', function (): void {
+it('can filter records using number constraint with min aggregate on relationship (legacy `relationship()`)', function (): void {
     // Create user where even the lowest rating is high
     $highMinUser = User::factory()->create();
     Post::factory()->create([
@@ -1366,7 +1960,7 @@ it('can filter records using number constraint with min aggregate on relationshi
         ->assertCanNotSeeTableRecords([$lowMinUser]);
 });
 
-it('can filter records using number constraint with max aggregate on relationship', function (): void {
+it('can filter records using number constraint with max aggregate on relationship (legacy `relationship()`)', function (): void {
     // Create user with at least one very high rating
     $highMaxUser = User::factory()->create();
     Post::factory()->create([
@@ -1406,7 +2000,7 @@ it('can filter records using number constraint with max aggregate on relationshi
         ->assertCanNotSeeTableRecords([$lowMaxUser]);
 });
 
-it('can filter records using number constraint with aggregate and inverse operator', function (): void {
+it('can filter records using number constraint with aggregate and inverse operator (legacy `relationship()`)', function (): void {
     // Create user with high average rating
     $highAvgUser = User::factory()->create();
     Post::factory()->count(3)->create([
@@ -1438,7 +2032,7 @@ it('can filter records using number constraint with aggregate and inverse operat
         ->assertCanNotSeeTableRecords([$highAvgUser]);
 });
 
-it('can filter records using number constraint with sum aggregate on `BelongsToMany` relationship', function (): void {
+it('can filter records using number constraint with sum aggregate on `BelongsToMany` relationship (legacy `relationship()`)', function (): void {
     // Create user with high total budget across all teams
     $highTotalUser = User::factory()->create();
     $highTeams = Team::factory()->count(3)->create(['budget' => 5000]); // Total: 15000
@@ -1466,7 +2060,7 @@ it('can filter records using number constraint with sum aggregate on `BelongsToM
         ->assertCanNotSeeTableRecords([$lowTotalUser]);
 });
 
-it('can filter records using number constraint with average aggregate on `BelongsToMany` relationship', function (): void {
+it('can filter records using number constraint with average aggregate on `BelongsToMany` relationship (legacy `relationship()`)', function (): void {
     // Create user with high average budget
     $highAvgUser = User::factory()->create();
     $highTeams = Team::factory()->count(3)->create(['budget' => 8000]); // Average: 8000
@@ -1494,7 +2088,7 @@ it('can filter records using number constraint with average aggregate on `Belong
         ->assertCanNotSeeTableRecords([$lowAvgUser]);
 });
 
-it('can filter records using number constraint with min aggregate on `BelongsToMany` relationship', function (): void {
+it('can filter records using number constraint with min aggregate on `BelongsToMany` relationship (legacy `relationship()`)', function (): void {
     // Create user where even the lowest budget is high
     $highMinUser = User::factory()->create();
     $highMinTeams = collect([
@@ -1529,7 +2123,7 @@ it('can filter records using number constraint with min aggregate on `BelongsToM
         ->assertCanNotSeeTableRecords([$lowMinUser]);
 });
 
-it('can filter records using number constraint with max aggregate on `BelongsToMany` relationship', function (): void {
+it('can filter records using number constraint with max aggregate on `BelongsToMany` relationship (legacy `relationship()`)', function (): void {
     // Create user with at least one very high budget team
     $highMaxUser = User::factory()->create();
     $highMaxTeams = collect([
@@ -1563,7 +2157,7 @@ it('can filter records using number constraint with max aggregate on `BelongsToM
         ->assertCanNotSeeTableRecords([$lowMaxUser]);
 });
 
-it('can filter records using number constraint with aggregate and inverse operator on `BelongsToMany` relationship', function (): void {
+it('can filter records using number constraint with aggregate and inverse operator on `BelongsToMany` relationship (legacy `relationship()`)', function (): void {
     // Create user with high average budget
     $highAvgUser = User::factory()->create();
     $highTeams = Team::factory()->count(3)->create(['budget' => 8000]);

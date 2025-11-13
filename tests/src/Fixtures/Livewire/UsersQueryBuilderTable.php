@@ -37,6 +37,10 @@ class UsersQueryBuilderTable extends Component implements HasActions, HasSchemas
                         NumberConstraint::make('teams_budget')
                             ->label('Teams Budget Aggregate')
                             ->relationship(name: 'teams', titleAttribute: 'budget'),
+                        NumberConstraint::make('posts.rating')
+                            ->label('Posts Rating Aggregate (Dot Syntax)'),
+                        NumberConstraint::make('teams.budget')
+                            ->label('Teams Budget Aggregate (Dot Syntax)'),
                     ]),
             ])
             ->paginated(false);
