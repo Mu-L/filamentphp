@@ -607,7 +607,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
 
             $labels = [];
 
-            foreach ($state as $value) {
+            foreach ($state ?? [] as $value) {
                 if ($value instanceof BackedEnum) {
                     $value = $value->value;
                 }
