@@ -232,7 +232,7 @@ class Select extends Field implements Contracts\CanDisableOptions, Contracts\Has
             ->label(__('filament-forms::components.select.actions.create_option.label'))
             ->schema(static function (Select $component, Schema $schema): array | Schema | null {
                 return $component->getCreateOptionActionForm($schema->model(
-                    $component->getRelationship() ? $component->getRelationship()->getModel()::class : null,
+                    $component->hasRelationship() ? $component->getRelationship()->getModel()::class : $component->getActionSchemaModel(),
                 ));
             })
             ->action(static function (Action $action, array $arguments, Select $component, array $data, Schema $schema): void {
