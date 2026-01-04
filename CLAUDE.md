@@ -6,151 +6,211 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Filament is a full-stack UI framework for Laravel built with Livewire. It provides admin panels, forms, tables, notifications, actions, infolists, and widgets as composable packages.
 
-## Development Commands
+## Critical: Naming Conventions
 
-### Running Tests
+### Variable Names
 
-```bash
-# Run all tests (SQLite + commands + PHPStan)
-composer test
-
-# Run tests with specific database
-composer test:sqlite
-composer test:mysql
-composer test:pgsql
-
-# Run command tests separately (they can't run in parallel)
-composer test:commands:sqlite
-
-# Run a single test file
-vendor/bin/pest tests/src/Forms/Components/FileUploadTest.php
-
-# Run PHPStan static analysis
-composer test:phpstan
-```
-
-### Code Style
-
-```bash
-# Run all code style fixes (Rector + Pint + Prettier)
-composer cs
-
-# Run individual tools
-vendor/bin/rector process
-vendor/bin/pint --config pint-strict-imports.json
-npm run prettier
-```
-
-### Building Assets
-
-```bash
-npm run build       # Build all JS and CSS
-npm run build-demo  # Use this if ../demo directory exists (publishes assets to demo too)
-```
-
-## Architecture
-
-### Package Structure
-
-The monorepo contains these core packages in `packages/`:
-
-- **support** - Base utilities, components, assets, colors, icons. All other packages depend on this.
-- **schemas** - Schema component system for building UI layouts (shared by forms/infolists)
-- **forms** - Form components extending schemas (TextInput, Select, FileUpload, etc.)
-- **infolists** - Read-only display components extending schemas
-- **tables** - Table component with columns, filters, and bulk actions
-- **actions** - Modal actions (Create, Edit, Delete, Import, Export, etc.)
-- **notifications** - Toast notification system
-- **widgets** - Dashboard widgets (stats, charts)
-- **panels** - Full admin panel framework combining all packages
-- **query-builder** - Advanced query building UI for filtering
-- **upgrade** - Rector rules for upgrading between Filament versions
-- **spatie-laravel-media-library-plugin** - Integration with Spatie Media Library
-- **spatie-laravel-settings-plugin** - Integration with Spatie Laravel Settings
-- **spatie-laravel-tags-plugin** - Integration with Spatie Laravel Tags
-- **spatie-laravel-google-fonts-plugin** - Google Fonts provider using Spatie package
-- **spark-billing-provider** - Laravel Spark billing integration
-
-### Key Concepts
-
-**Resources** (`packages/panels/src/Resources/Resource.php`): Define CRUD interfaces for Eloquent models. Each resource has pages (List, Create, Edit, View) and configures forms, tables, and infolists.
-
-**Pages** (`packages/panels/src/Pages/`): Livewire components that make up panel screens. Resource pages extend the base Page class.
-
-**Schema Components** (`packages/schemas/src/Components/`): Base UI components with layout, visibility, and state management. Form and Infolist components extend these.
-
-**Actions** (`packages/actions/src/`): Modal-based operations. Actions can have forms, confirmation dialogs, and execute callbacks.
-
-**Panels** (`packages/panels/src/Panel.php`): Configuration object for an entire admin panel (auth, navigation, resources, pages, middleware, etc.). Created via `PanelProvider`.
-
-### Test Structure
-
-Tests are in `tests/src/` organized by package:
-- `tests/src/Forms/` - Form component tests
-- `tests/src/Tables/` - Table component tests
-- `tests/src/Actions/` - Action tests
-- `tests/src/Panels/` - Panel and resource tests
-
-Tests use Pest with Laravel's Livewire testing helpers. Fixtures are in `tests/src/Fixtures/`.
-
-### Documentation
-
-- `docs/` - Main documentation for panels and general usage
-- Package-specific docs exist in: `packages/{actions,forms,infolists,notifications,schemas,tables,widgets}/docs/`
-
-## Coding Standards
-
-### Pest Test Naming
-
-Use backticks for code references in test names. Add `()` when referencing methods:
+**Never use abbreviated variable names.** Use full descriptive names:
 
 ```php
-// Good
+// GOOD
+$exception, $component, $response, $configuration, $record, $livewire
+
+// BAD - never do this
+$e, $comp, $res, $cfg, $rec, $lw
+```
+
+Only exception: universally understood abbreviations like `$id`, `$url`.
+
+### Pest Test Names
+
+**Always use backticks for code references. Add `()` for methods:**
+
+```php
+// GOOD
 it('can use `aspectRatio()` to force image cropping')
 it('returns `null` for `getImageCropAspectRatio()` by default')
+it('validates `$record` is an instance of `Model`')
 
-// Bad
+// BAD - missing backticks
 it('can use aspectRatio to force image cropping')
 it('returns null for getImageCropAspectRatio by default')
 ```
 
-### Variable Naming
+### Code Comments
 
-Never use abbreviated variable names in PHP or JS. Use descriptive names:
+**Use backticks when referencing code in comments:**
 
 ```php
-// Good
-$exception, $component, $response, $configuration
+// GOOD
+// Uses `evaluate()` to resolve the `Closure`
+// Returns `null` if the `$record` is not set
 
-// Bad
-$e, $comp, $res, $cfg
+// BAD
+// Uses evaluate() to resolve the Closure
 ```
 
-Exception: Common abbreviations where humans read them as-is are acceptable (e.g., `$id`, `$url`).
+## Development Commands
+
+```bash
+composer test              # Run all tests (SQLite + commands + PHPStan)
+composer test:sqlite       # Run tests with SQLite
+composer test:mysql        # Run tests with MySQL
+composer test:pgsql        # Run tests with PostgreSQL
+composer test:phpstan      # Run PHPStan static analysis
+composer cs                # Run all code style fixes (Rector + Pint + Prettier)
+
+npm run build              # Build all JS and CSS
+npm run build-demo         # Build and publish to ../demo if it exists
+
+# Run a single test file
+vendor/bin/pest tests/src/Forms/Components/FileUploadTest.php
+
+# Run a single test by name
+vendor/bin/pest --filter="it can use \`aspectRatio\(\)\` to force image cropping"
+```
+
+## Coding Patterns
+
+### Fluent API
+
+Components use `make()` constructor and fluent chainable methods. Nullable properties have nullable setters so they can be undone:
+
+```php
+TextInput::make('name')
+    ->label('Full name')
+    ->icon('heroicon-o-user')
+
+// Property and setter share the same name, nullable to allow unsetting
+protected string | Closure | null $icon = null;
+
+public function icon(string | Closure | null $icon): static
+{
+    $this->icon = $icon;
+
+    return $this;
+}
+
+// Getter prefixed with `get`, uses `evaluate()` for `Closure` support
+public function getIcon(): ?string
+{
+    return $this->evaluate($this->icon);
+}
+```
+
+### Boolean Methods
+
+```php
+// Property - `is`/`should`/`can`/`has` prefix, defaults `false`, supports `Closure`
+protected bool | Closure $isDisabled = false;
+
+// Setter - verb form, defaults `true`, pass `false` to undo
+public function disabled(bool | Closure $condition = true): static
+{
+    $this->isDisabled = $condition;
+
+    return $this;
+}
+
+// Getter - cast to `bool`
+public function isDisabled(): bool
+{
+    return (bool) $this->evaluate($this->isDisabled);
+}
+```
+
+### Static Closures
+
+Use `static fn` when the closure doesn't use `$this`:
+
+```php
+->placeholder(static fn (Select $component): ?string => $component->isDisabled() ? null : 'Select...')
+->visible(fn (): bool => $this->canView()) // Uses `$this`, cannot be static
+```
+
+### Container Resolution
+
+Use `app()` instead of `new` to allow users to bind custom implementations:
+
+```php
+app(RelationshipJoiner::class)->prepareQuery($relationship) // Good
+(new RelationshipJoiner())->prepareQuery($relationship)     // Avoid
+```
+
+### Extensibility
+
+Do not use `final` or `readonly` classes - users need to extend Filament classes.
+
+### Concerns and Contracts
+
+Traits in `Concerns/` directories: `Can*` (capabilities), `Has*` (properties).
+Interfaces in `Contracts/` directories.
+
+## Coding Standards
+
+### PHPDoc
+
+Only add when providing type info beyond native PHP types:
+
+```php
+/** @var array<string, array{label: string, icon: string}> */  // Good
+/** @param string $name The name */                            // Redundant
+```
 
 ### Deprecations
 
-When renaming or replacing public methods that are used in the documentation, keep the old method and mark it as deprecated:
+Keep old public methods used in docs, mark deprecated:
 
 ```php
-/**
- * @deprecated Use `newMethod()` instead.
- */
+/** @deprecated Use `newMethod()` instead. */
 public function oldMethod(): void
 {
     return $this->newMethod();
 }
 ```
 
-### Comments
+## Architecture
 
-Avoid excessive comments. PHPDoc blocks are encouraged when they add type information beyond PHP's native types, especially for arrays and generics:
+### Packages (`packages/`)
 
-```php
-// Good - adds useful type info
-/** @var array<string, array{label: string, icon: string}> */
+Core: **support** (base utilities) → **schemas** (UI layouts) → **forms**, **infolists**, **tables**, **actions**, **notifications**, **widgets** → **panels** (full admin framework)
 
-// Bad - redundant with native types
-/** @param string $name The name */
-public function setName(string $name): void
+Other: query-builder, upgrade, spatie-laravel-media-library-plugin, spatie-laravel-settings-plugin, spatie-laravel-tags-plugin, spatie-laravel-google-fonts-plugin, spark-billing-provider
+
+### Key Classes
+
+- **Resources** (`packages/panels/src/Resources/`): CRUD interfaces for Eloquent models
+- **Pages** (`packages/panels/src/Pages/`): Livewire page components
+- **Schema Components** (`packages/schemas/src/Components/`): Base UI components
+- **Actions** (`packages/actions/src/`): Modal-based operations
+- **Panel** (`packages/panels/src/Panel.php`): Admin panel configuration
+
+### File Locations
+
+- Tests: `tests/src/{Forms,Tables,Actions,Panels}/`
+- Docs: `docs/` and `packages/{package}/docs/`
+- Views: `packages/{package}/resources/views/`
+- CSS: `packages/{package}/resources/css/`
+- Translations: `packages/{package}/resources/lang/{locale}/`
+
+### CSS Hook Classes
+
+**Never use Tailwind classes directly in Blade views.** All Tailwind classes must be in CSS files using `@apply`:
+
+```css
+.fi-fo-field {
+    @apply grid gap-y-2;
+}
 ```
+
+Hook class naming:
+- Prefix: `fi-` with package codes (`fi-fo-` forms, `fi-ta-` tables, `fi-ac-` actions, etc.)
+- Abbreviations: `btn`, `col`, `ctn`, `wrp`
+
+## Writing Documentation
+
+- **Tone**: Direct, second person ("You may set...", "You can do this using...")
+- **Structure**: Start with `## Introduction`, show simplest code first
+- **Headings**: Use gerunds ("Setting the type" not "Type settings", "Enabling search" not "Search")
+- **Formatting**: Backticks for code (`method()`, `ClassName`), include `use` statements
+- **Asides**: `<Aside variant="tip|info|danger">...</Aside>`
