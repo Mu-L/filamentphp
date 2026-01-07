@@ -32,19 +32,32 @@ if (! function_exists('Filament\get_authorization_response')) {
     {
         $user = Filament::auth()->user();
 
-        if (! $shouldCheckPolicyExistence) {
-            return Gate::forUser($user)->inspect($action, Arr::wrap($model));
-        }
-
-        $policy = Gate::getPolicyFor($model);
-
-        $policyMethod = match (true) {
+        $actionValue = match (true) {
             $action instanceof BackedEnum => $action->value,
             $action instanceof UnitEnum => $action->name,
             default => $action,
         };
 
-        if (filled($policy) && method_exists($policy, $policyMethod)) {
+        if (! $shouldCheckPolicyExistence) {
+            if (
+                Filament::isAuthorizationStrict()
+                && (! Gate::forUser($user)->has($action))
+                && (
+                    blank($policyClass = Gate::getPolicyFor($model))
+                    || (! method_exists($policyClass, $actionValue))
+                )
+            ) {
+                throw new LogicException(blank($policyClass)
+                    ? "Strict authorization mode is enabled, but no ability [{$actionValue}] or policy with method [{$actionValue}()] was found for [{$model}]."
+                    : "Strict authorization mode is enabled, but no ability [{$actionValue}] or [{$actionValue}()] method was found on [{$policyClass}].");
+            }
+
+            return Gate::forUser($user)->inspect($action, Arr::wrap($model));
+        }
+
+        $policy = Gate::getPolicyFor($model);
+
+        if (filled($policy) && method_exists($policy, $actionValue)) {
             return Gate::forUser($user)->inspect($action, Arr::wrap($model));
         }
 
@@ -57,7 +70,7 @@ if (! function_exists('Filament\get_authorization_response')) {
 
             throw new LogicException(blank($policyClass)
                 ? "Strict authorization mode is enabled, but no policy was found for [{$model}]."
-                : "Strict authorization mode is enabled, but no [{$policyMethod}()] method was found on [{$policyClass}].");
+                : "Strict authorization mode is enabled, but no [{$actionValue}()] method was found on [{$policyClass}].");
         }
 
         /** @var bool | Response | null $response */
