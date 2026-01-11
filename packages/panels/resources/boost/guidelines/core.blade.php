@@ -9,18 +9,6 @@
 - Use Filament-specific Artisan commands to create files. Find them with `list-artisan-commands` or `php artisan --help`.
 - Inspect required options and always pass `--no-interaction`.
 
-### Features
-
-- **Panels**: The top-level container that includes pages, resources, forms, tables, notifications, actions, infolists, and widgets.
-- **Resources**: Static classes for building CRUD interfaces for Eloquent models. Located in `app/Filament/Resources`.
-- **Forms**: Dynamic forms rendered in resources, action modals, table filters, and more.
-- **Tables**: Interactive tables with filtering, sorting, and pagination.
-- **Actions**: Buttons or links that encapsulate UI (modal windows) and logic. Used for one-time operations like deleting records, sending emails, or updating data via modal form input.
-- **Infolists**: Read-only data displays.
-- **Notifications**: Flash notifications for users.
-- **Schemas**: Components that define UI structure and behavior for forms, tables, or lists.
-- **Widgets**: Dashboard components for charts, stats, and tables.
-
 ### Patterns
 
 Use static `make()` methods to initialize components. Most configuration methods accept a `Closure` for dynamic values.
@@ -29,8 +17,14 @@ Use `Get $get` to read other form field values for conditional logic:
 
 @verbatim
 <code-snippet name="Conditional form field" lang="php">
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
+
+Select::make('type')
+    ->options(CompanyType::class)
+    ->required()
+    ->live(),
 
 TextInput::make('company_name')
     ->required()
@@ -126,13 +120,11 @@ Authenticate before testing panel functionality. Filament uses Livewire, so use 
 
 ### Common Mistakes
 
-**Namespaces:**
+**Commonly Incorrect Namespaces:**
 - Form fields (TextInput, Select, etc.): `Filament\Forms\Components\`
-- Infolist entries (TextEntry, IconEntry, etc.): `Filament\Forms\Components\`
+- Infolist entries (for read-only views) (TextEntry, IconEntry, etc.): `Filament\Forms\Components\`
 - Layout components (Grid, Section, Fieldset, Tabs, Wizard, etc.): `Filament\Schemas\Components\`
 - Schema utilities (Get, Set, etc.): `Filament\Schemas\Components\Utilities\`
-- Table columns (TextColumn, IconColumn, etc.): `Filament\Tables\Columns\`
-- Table filters (Filter, SelectFilter, etc.): `Filament\Tables\Filters\`
 - Actions: `Filament\Actions\` (no `Filament\Tables\Actions\` etc.)
 - Icons: `Filament\Support\Icons\Heroicon` enum (e.g., `Heroicon::PencilSquare`)
 
