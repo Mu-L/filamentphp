@@ -635,7 +635,7 @@ trait InteractsWithActions
     }
 
     /**
-     * @param  string | array<string>  $actions
+     * @param  string | array<string | array<string, mixed>>  $actions
      */
     public function getAction(string | array $actions, bool $isMounting = true): ?Action
     {
