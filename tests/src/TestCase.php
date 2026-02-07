@@ -62,16 +62,12 @@ abstract class TestCase extends BaseTestCase
             ...$app['config']->get('view.paths'),
             __DIR__ . '/../resources/views',
         ]);
-
-        $sqliteConfig = [
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
             'foreign_key_constraints' => true,
-        ];
-
-        $app['config']->set('database.default', 'testing');
-        $app['config']->set('database.connections.testing', $sqliteConfig);
-        $app['config']->set('database.connections.sqlite', $sqliteConfig);
+        ]);
     }
 }
