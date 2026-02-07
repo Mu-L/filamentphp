@@ -15,7 +15,7 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Tests\Models\User;
 use Filament\Widgets\WidgetsServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Kirschbaum\PowerJoins\PowerJoinsServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
@@ -24,7 +24,7 @@ use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
     use WithWorkbench;
 
     protected function getPackageProviders($app): array
@@ -62,6 +62,5 @@ abstract class TestCase extends BaseTestCase
             ...$app['config']->get('view.paths'),
             __DIR__ . '/../resources/views',
         ]);
-        $app['config']->set('database.connections.testing', $app['config']->get('database.connections.sqlite'));
     }
 }
