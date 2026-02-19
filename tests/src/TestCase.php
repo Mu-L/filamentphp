@@ -63,4 +63,9 @@ abstract class TestCase extends BaseTestCase
             __DIR__ . '/../resources/views',
         ]);
     }
+
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
 }
