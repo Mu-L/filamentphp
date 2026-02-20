@@ -71,7 +71,7 @@ trait InteractsWithRelationshipTable
 
     public function defaultForm(Schema $schema): Schema
     {
-        if (! $schema->hasConfiguredColumns()) {
+        if (! $schema->hasCustomColumns()) {
             $schema->columns(2);
         }
 
@@ -89,7 +89,7 @@ trait InteractsWithRelationshipTable
 
     public function defaultInfolist(Schema $schema): Schema
     {
-        if (! $schema->hasConfiguredColumns()) {
+        if (! $schema->hasCustomColumns()) {
             $schema->columns(2);
         }
 

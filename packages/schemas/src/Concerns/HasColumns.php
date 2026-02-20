@@ -37,7 +37,7 @@ trait HasColumns
         return $this;
     }
 
-    public function hasConfiguredColumns(): bool
+    public function hasCustomColumns(): bool
     {
         return $this->columns !== null;
     }
