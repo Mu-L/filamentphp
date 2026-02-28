@@ -3,6 +3,8 @@
 namespace Filament\Pages;
 
 use BackedEnum;
+use Closure;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Clusters\Cluster;
@@ -25,6 +27,9 @@ use UnitEnum;
 
 use function Filament\Support\original_request;
 
+/**
+ * @template TConfiguration of PageConfiguration = PageConfiguration
+ */
 abstract class Page extends BasePage
 {
     use Concerns\CanAuthorizeAccess;
@@ -41,6 +46,11 @@ abstract class Page extends BasePage
     protected static ?string $cluster = null;
 
     protected static bool $isDiscovered = true;
+
+    /**
+     * @var ?class-string<TConfiguration>
+     */
+    protected static ?string $configurationClass = null;
 
     protected static string | UnitEnum | null $navigationGroup = null;
 
@@ -78,8 +88,19 @@ abstract class Page extends BasePage
     /**
      * @param  array<mixed>  $parameters
      */
-    public static function getUrl(array $parameters = [], bool $isAbsolute = true, ?string $panel = null, ?Model $tenant = null): string
+    public static function getUrl(array $parameters = [], bool $isAbsolute = true, ?string $panel = null, ?Model $tenant = null, bool $shouldGuessMissingParameters = false, ?string $configuration = null): string
     {
+        if (filled($configuration)) {
+            return static::withConfiguration($configuration, static fn (): string => static::getUrl(
+                $parameters,
+                $isAbsolute,
+                $panel,
+                $tenant,
+                $shouldGuessMissingParameters,
+                configuration: null,
+            ));
+        }
+
         if (blank($panel) || ($panel = Filament::getPanel($panel))->hasTenancy()) {
             $parameters['tenant'] ??= ($tenant ?? Filament::getTenant());
         }
@@ -87,17 +108,17 @@ abstract class Page extends BasePage
         return route(static::getRouteName($panel), $parameters, $isAbsolute);
     }
 
-    public static function registerRoutes(Panel $panel): void
+    public static function registerRoutes(Panel $panel, ?PageConfiguration $configuration = null): void
     {
         if (filled(static::getCluster())) {
             Route::name(static::prependClusterRouteBaseName($panel, 'pages.'))
                 ->prefix(static::prependClusterSlug($panel, ''))
-                ->group(fn () => static::routes($panel));
+                ->group(fn () => static::routes($panel, $configuration));
 
             return;
         }
 
-        Route::name('pages.')->group(fn () => static::routes($panel));
+        Route::name('pages.')->group(fn () => static::routes($panel, $configuration));
     }
 
     public static function registerNavigationItems(): void
@@ -123,13 +144,15 @@ abstract class Page extends BasePage
      */
     public static function getNavigationItems(): array
     {
+        $activeRoutePattern = static::getNavigationItemActiveRoutePattern();
+
         return [
             NavigationItem::make(static::getNavigationLabel())
                 ->group(static::getNavigationGroup())
                 ->parentItem(static::getNavigationParentItem())
                 ->icon(static::getNavigationIcon())
                 ->activeIcon(static::getActiveNavigationIcon())
-                ->isActiveWhen(fn (): bool => original_request()->routeIs(static::getNavigationItemActiveRoutePattern()))
+                ->isActiveWhen(fn (): bool => original_request()->routeIs($activeRoutePattern))
                 ->sort(static::getNavigationSort())
                 ->badge(static::getNavigationBadge(), color: static::getNavigationBadgeColor())
                 ->badgeTooltip(static::getNavigationBadgeTooltip())
@@ -418,5 +441,63 @@ abstract class Page extends BasePage
     public function getDefaultTestingSchemaName(): ?string
     {
         return $this->getSchema('form') ? 'form' : 'content';
+    }
+
+    /**
+     * @return TConfiguration
+     */
+    public static function make(string $key = 'default'): PageConfiguration
+    {
+        if (! static::$configurationClass) {
+            throw new Exception('Page ' . static::class . ' does not define a $configurationClass.');
+        }
+
+        return static::$configurationClass::make(static::class, $key);
+    }
+
+    /**
+     * @return ?TConfiguration
+     */
+    public static function getConfiguration(?Panel $panel = null): ?PageConfiguration
+    {
+        $key = Filament::getCurrentPageConfigurationKey();
+
+        if ($key === null) {
+            return null;
+        }
+
+        $panel ??= Filament::getCurrentPanel();
+
+        return $panel->getPageConfiguration(static::class, $key);
+    }
+
+    public static function hasConfiguration(): bool
+    {
+        return static::getConfiguration() !== null;
+    }
+
+    /**
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
+     */
+    public static function withConfiguration(string $key, Closure $callback): mixed
+    {
+        $configuration = Filament::getCurrentPanel()->getPageConfiguration(static::class, $key);
+
+        if (! $configuration) {
+            throw new Exception("Configuration '{$key}' not found for page " . static::class);
+        }
+
+        $previousKey = Filament::getCurrentPageConfigurationKey();
+
+        Filament::setCurrentPageConfigurationKey($key);
+
+        try {
+            return $callback();
+        } finally {
+            Filament::setCurrentPageConfigurationKey($previousKey);
+        }
     }
 }
