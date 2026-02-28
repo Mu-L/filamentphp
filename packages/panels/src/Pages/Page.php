@@ -195,19 +195,34 @@ abstract class Page extends BasePage
         return static::$navigationGroup;
     }
 
+    public static function navigationGroup(string | UnitEnum | null $group): void
+    {
+        static::$navigationGroup = $group;
+    }
+
     public static function getNavigationParentItem(): ?string
     {
         return static::$navigationParentItem;
     }
 
-    public static function getActiveNavigationIcon(): string | BackedEnum | Htmlable | null
+    public static function navigationParentItem(?string $item): void
     {
-        return static::$activeNavigationIcon ?? static::getNavigationIcon();
+        static::$navigationParentItem = $item;
     }
 
     public static function getNavigationIcon(): string | BackedEnum | Htmlable | null
     {
         return static::$navigationIcon;
+    }
+
+    public static function navigationIcon(string | BackedEnum $icon): void
+    {
+        static::$navigationIcon = $icon;
+    }
+
+    public static function getActiveNavigationIcon(): string | BackedEnum | Htmlable | null
+    {
+        return static::$activeNavigationIcon ?? static::getNavigationIcon();
     }
 
     public static function getNavigationLabel(): string
@@ -223,6 +238,11 @@ abstract class Page extends BasePage
         return null;
     }
 
+    public static function getNavigationBadgeTooltip(): string | Htmlable | null
+    {
+        return static::$navigationBadgeTooltip;
+    }
+
     /**
      * @return string | array<string> | null
      */
@@ -231,14 +251,19 @@ abstract class Page extends BasePage
         return null;
     }
 
-    public static function getNavigationBadgeTooltip(): string | Htmlable | null
-    {
-        return static::$navigationBadgeTooltip;
-    }
-
     public static function getNavigationSort(): ?int
     {
         return static::$navigationSort;
+    }
+
+    public static function navigationLabel(?string $label): void
+    {
+        static::$navigationLabel = $label;
+    }
+
+    public static function navigationSort(?int $sort): void
+    {
+        static::$navigationSort = $sort;
     }
 
     public static function getNavigationUrl(): string
