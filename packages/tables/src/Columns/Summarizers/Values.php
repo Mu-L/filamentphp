@@ -39,7 +39,7 @@ class Values extends Summarizer
         <div <?= $attributes->toHtml() ?>>
             <?php if (filled($label = $this->getLabel())) { ?>
                 <span class="fi-ta-values-summary-label">
-                    <?= $label ?>
+                    <?= e($label) ?>
                 </span>
             <?php } ?>
 
