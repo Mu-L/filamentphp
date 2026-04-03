@@ -35,6 +35,22 @@ trait CanSummarizeRecords
 
         $selects = [];
 
+        // https://github.com/filamentphp/filament/issues/19594
+        // Check if we have pivot columns selected (`BelongsToMany` `RelationManager` context)
+        $hasPivotColumns = collect($query->getQuery()->getColumns())
+            ->contains(fn (string $column): bool => str($column)->contains(' as pivot_'));
+
+        // If we have pivot columns, remove the join table's wildcard to prevent
+        // duplicate column errors (e.g., both tables have `id`) when the query
+        // is used as a subquery in MySQL. Only the join table's wildcard is removed
+        // so that non-pivot columns from the related model remain accessible.
+        if ($hasPivotColumns && ($joinTable = ($query->getQuery()->joins[0]->table ?? null))) {
+            $query->getQuery()->columns = array_filter(
+                $query->getQuery()->columns,
+                fn (mixed $column): bool => ! is_string($column) || $column !== "{$joinTable}.*",
+            );
+        }
+
         foreach ($this->getTable()->getVisibleColumns() as $column) {
             $summarizers = $column->getSummarizers($query);
 
@@ -46,7 +62,21 @@ trait CanSummarizeRecords
                 continue;
             }
 
-            $qualifiedAttribute = $query->getModel()->qualifyColumn($column->getName());
+            $columnName = $column->getName();
+
+            // https://github.com/filamentphp/filament/issues/19594
+            // Check if this column is actually a pivot column by looking for its alias.
+            // Handle both `pivot.amount_total` (explicit) and `quantity` (implicit) column names.
+            $pivotAlias = str($columnName)->startsWith('pivot.')
+                ? (string) str($columnName)->after('pivot.')->prepend('pivot_')
+                : 'pivot_' . $columnName;
+            $isPivotColumn = $hasPivotColumns && collect($query->getQuery()->getColumns())
+                ->contains(fn (string $col): bool => str($col)->endsWith(" as {$pivotAlias}"));
+
+            // Use the pivot alias if this is a pivot column, otherwise qualify with the model's table
+            $qualifiedAttribute = $isPivotColumn
+                ? $pivotAlias
+                : $query->getModel()->qualifyColumn($columnName);
 
             foreach ($summarizers as $summarizer) {
                 if ($summarizer->hasQueryModification()) {
