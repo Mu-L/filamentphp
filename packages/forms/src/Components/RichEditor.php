@@ -453,74 +453,81 @@ class RichEditor extends Field implements Contracts\CanBeLengthConstrained
             $fileAttachmentProvider?->cleanUpFileAttachments(exceptIds: $fileAttachmentIds);
         }, shouldUpdateValidatedStateAfter: true);
 
-        $this->saveRelationshipsUsing(function (RichEditor $component, ?array $rawState, Model $record): void {
-            $fileAttachmentProvider = $component->getFileAttachmentProvider();
-
-            if (! $fileAttachmentProvider) {
-                return;
-            }
-
-            if (! $fileAttachmentProvider->isExistingRecordRequiredToSaveNewFileAttachments()) {
-                return;
-            }
-
-            if (! $record->wasRecentlyCreated) {
-                return;
-            }
-
-            $fileAttachmentIds = [];
-
-            $component->rawState(
-                $component->getTipTapEditor()
-                    ->setContent($rawState ?? [
-                        'type' => 'doc',
-                        'content' => [],
-                    ])
-                    ->descendants(function (object &$node) use ($component, &$fileAttachmentIds): void {
-                        if ($node->type !== 'image') {
-                            return;
-                        }
-
-                        if (blank($node->attrs->id ?? null)) {
-                            return;
-                        }
-
-                        $attachment = $component->getUploadedFileAttachment($node->attrs->id);
-
-                        if ($attachment) {
-                            $node->attrs->id = $component->saveUploadedFileAttachment($attachment);
-                            $node->attrs->src = $component->getFileAttachmentUrl($node->attrs->id);
-
-                            $fileAttachmentIds[] = $node->attrs->id;
-
-                            return;
-                        }
-
-                        if (filled($component->getFileAttachmentUrl($node->attrs->id))) {
-                            $fileAttachmentIds[] = $node->attrs->id;
-
-                            return;
-                        }
-
-                        $fileAttachmentIdFromAnotherRecord = $component->saveFileAttachmentFromAnotherRecord($node->attrs->id);
-
-                        if (blank($fileAttachmentIdFromAnotherRecord)) {
-                            $fileAttachmentIds[] = $node->attrs->id;
-
-                            return;
-                        }
-
-                        $node->attrs->id = $fileAttachmentIdFromAnotherRecord;
-                        $node->attrs->src = $component->getFileAttachmentUrl($fileAttachmentIdFromAnotherRecord) ?? $node->attrs->src ?? null;
-                    })
-                    ->getDocument(),
-            );
-
-            $record->setAttribute($component->getContentAttribute()->getName(), $component->getState());
-            $record->save();
-
-            $fileAttachmentProvider->cleanUpFileAttachments(exceptIds: $fileAttachmentIds);
+        $this->saveRelationshipsUsing(static function (RichEditor $component): void {
+            $component->saveFileAttachmentsToRecord();
         });
+    }
+
+    public function saveFileAttachmentsToRecord(): void
+    {
+        $fileAttachmentProvider = $this->getFileAttachmentProvider();
+
+        if (! $fileAttachmentProvider) {
+            return;
+        }
+
+        if (! $fileAttachmentProvider->isExistingRecordRequiredToSaveNewFileAttachments()) {
+            return;
+        }
+
+        $record = $this->getRecord();
+
+        if (! $record->wasRecentlyCreated) {
+            return;
+        }
+
+        $fileAttachmentIds = [];
+
+        $this->rawState(
+            $this->getTipTapEditor()
+                ->setContent($this->getRawState() ?? [
+                    'type' => 'doc',
+                    'content' => [],
+                ])
+                ->descendants(function (object &$node) use (&$fileAttachmentIds): void {
+                    if ($node->type !== 'image') {
+                        return;
+                    }
+
+                    if (blank($node->attrs->id ?? null)) {
+                        return;
+                    }
+
+                    $attachment = $this->getUploadedFileAttachment($node->attrs->id);
+
+                    if ($attachment) {
+                        $node->attrs->id = $this->saveUploadedFileAttachment($attachment);
+                        $node->attrs->src = $this->getFileAttachmentUrl($node->attrs->id);
+
+                        $fileAttachmentIds[] = $node->attrs->id;
+
+                        return;
+                    }
+
+                    if (filled($this->getFileAttachmentUrl($node->attrs->id))) {
+                        $fileAttachmentIds[] = $node->attrs->id;
+
+                        return;
+                    }
+
+                    $fileAttachmentIdFromAnotherRecord = $this->saveFileAttachmentFromAnotherRecord($node->attrs->id);
+
+                    if (blank($fileAttachmentIdFromAnotherRecord)) {
+                        $fileAttachmentIds[] = $node->attrs->id;
+
+                        return;
+                    }
+
+                    $node->attrs->id = $fileAttachmentIdFromAnotherRecord;
+                    $node->attrs->src = $this->getFileAttachmentUrl($fileAttachmentIdFromAnotherRecord) ?? $node->attrs->src ?? null;
+                })
+                ->getDocument(),
+        );
+
+        $record->setAttribute($this->getContentAttribute()->getName(), $this->getState());
+        $record->save();
+
+        $fileAttachmentProvider->cleanUpFileAttachments(exceptIds: $fileAttachmentIds);
     }
 
     public function isDehydrated(): bool
