@@ -17,6 +17,7 @@
     $actionModalIconColor = $action->getModalIconColor();
     $actionModalId = "fi-{$this->getId()}-action-{$action->getNestingIndex()}";
     $actionIsModalSlideOver = $action->isModalSlideOver();
+    $actionSlideOverPosition = $action->getSlideOverPosition();
     $actionIsModalFooterSticky = $action->isModalFooterSticky();
     $actionIsModalHeaderSticky = $action->isModalHeaderSticky();
     $actionModalWidth = $action->getModalWidth();
@@ -40,6 +41,7 @@
     :icon-color="$actionModalIconColor"
     :id="$actionModalId"
     :slide-over="$actionIsModalSlideOver"
+    :slide-over-position="$actionSlideOverPosition"
     :sticky-footer="$actionIsModalFooterSticky"
     :sticky-header="$actionIsModalHeaderSticky"
     :width="$actionModalWidth"
