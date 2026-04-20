@@ -4125,6 +4125,15 @@ export default {
             deviceScaleFactor: 3,
         },
     },
+    'primes/icon/sizes': {
+        url: 'primes',
+        selector: '#iconSizes',
+        viewport: {
+            width: 1920,
+            height: 640,
+            deviceScaleFactor: 3,
+        },
+    },
     'primes/icon/tooltip': {
         url: 'primes',
         selector: '#iconTooltip',
