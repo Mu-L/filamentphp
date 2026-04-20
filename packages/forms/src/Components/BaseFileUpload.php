@@ -74,6 +74,10 @@ class BaseFileUpload extends Field implements Contracts\HasNestedRecursiveValida
 
     protected ?Closure $getUploadedFileUsing = null;
 
+    protected ?Closure $getOpenableFileUrlUsing = null;
+
+    protected ?Closure $getDownloadableFileUrlUsing = null;
+
     protected ?Closure $reorderUploadedFilesUsing = null;
 
     protected ?Closure $saveUploadedFileUsing = null;
@@ -460,6 +464,20 @@ class BaseFileUpload extends Field implements Contracts\HasNestedRecursiveValida
         return $this;
     }
 
+    public function getOpenableFileUrlUsing(?Closure $callback): static
+    {
+        $this->getOpenableFileUrlUsing = $callback;
+
+        return $this;
+    }
+
+    public function getDownloadableFileUrlUsing(?Closure $callback): static
+    {
+        $this->getDownloadableFileUrlUsing = $callback;
+
+        return $this;
+    }
+
     public function reorderUploadedFilesUsing(?Closure $callback): static
     {
         $this->reorderUploadedFilesUsing = $callback;
@@ -796,13 +814,18 @@ class BaseFileUpload extends Field implements Contracts\HasNestedRecursiveValida
     }
 
     /**
-     * @return array<array{name: string, size: int, type: string, url: string} | null> | null
+     * @return array<array{name: string, size: int, type: string, url: string, openableUrl?: string, downloadableUrl?: string} | null> | null
      */
     #[ExposedLivewireMethod]
     #[Renderless]
     public function getUploadedFiles(): ?array
     {
         $urls = [];
+
+        $callback = $this->getUploadedFileUsing;
+        $storedFileNames = $this->getStoredFileNames();
+        $openableFileUrlCallback = $this->isOpenable() ? $this->getOpenableFileUrlUsing : null;
+        $downloadableFileUrlCallback = $this->isDownloadable() ? $this->getDownloadableFileUrlUsing : null;
 
         foreach ($this->getRawState() ?? [] as $fileKey => $file) {
             if ($file instanceof TemporaryUploadedFile) {
@@ -811,16 +834,40 @@ class BaseFileUpload extends Field implements Contracts\HasNestedRecursiveValida
                 continue;
             }
 
-            $callback = $this->getUploadedFileUsing;
-
             if (! $callback) {
                 return [$fileKey => null];
             }
 
             $urls[$fileKey] = $this->evaluate($callback, [
                 'file' => $file,
-                'storedFileNames' => $this->getStoredFileNames(),
+                'storedFileNames' => $storedFileNames,
             ]) ?: null;
+
+            if ($urls[$fileKey] === null) {
+                continue;
+            }
+
+            if ($openableFileUrlCallback) {
+                $openableUrl = $this->evaluate($openableFileUrlCallback, [
+                    'file' => $file,
+                    'storedFileNames' => $storedFileNames,
+                ]);
+
+                if ($openableUrl !== null) {
+                    $urls[$fileKey]['openableUrl'] = $openableUrl;
+                }
+            }
+
+            if ($downloadableFileUrlCallback) {
+                $downloadableUrl = $this->evaluate($downloadableFileUrlCallback, [
+                    'file' => $file,
+                    'storedFileNames' => $storedFileNames,
+                ]);
+
+                if ($downloadableUrl !== null) {
+                    $urls[$fileKey]['downloadableUrl'] = $downloadableUrl;
+                }
+            }
         }
 
         return $urls;
