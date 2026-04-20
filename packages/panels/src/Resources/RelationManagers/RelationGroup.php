@@ -139,9 +139,11 @@ class RelationGroup extends Component
     /**
      * @return string | array<string> | null
      */
-    public function getBadgeColor(): string | array | null
+    public function getBadgeColor(?string $badge = null): string | array | null
     {
-        return $this->evaluate($this->badgeColor);
+        return $this->evaluate($this->badgeColor, [
+            'badge' => $badge,
+        ]);
     }
 
     public function isBadgeDeferred(): bool
@@ -195,10 +197,10 @@ class RelationGroup extends Component
         $tab = Tab::make($this->getLabel())
             ->badge($isTabBadgeDeferred
                 ? fn (): ?string => $this->getBadge()
-                : $this->getBadge())
+                : ($badge = $this->getBadge()))
             ->deferBadge($isTabBadgeDeferred)
-            ->badgeColor($this->getBadgeColor())
-            ->badgeTooltip($this->getBadgeTooltip())
+            ->badgeColor($this->getBadgeColor($badge ?? null))
+            ->badgeTooltip($this->getBadgeTooltip($badge ?? null))
             ->icon($this->getIcon())
             ->iconPosition($this->getIconPosition());
 
