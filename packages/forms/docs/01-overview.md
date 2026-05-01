@@ -1728,34 +1728,29 @@ Group::make()
 
 In this example, the customer's name is not `required()`, and the email address is only required when the `name` is filled. The `condition` function is used to check whether the `name` field is filled, and if it is, then the customer will be created / updated. Otherwise, the customer will not be created, or will be deleted if it already exists.
 
-#### Using visibility in condition functions
+### Saving relationship data when the component is hidden
 
-Sometimes you may want to conditionally save relationship data based on whether a component is visible. For example, you might have a section that is only shown when a certain checkbox is checked or when a user has specific permissions. In these cases, you can use the component's `isVisible()` method within the condition:
+By default, if a layout component using `relationship()` is hidden when the form is submitted, Filament skips it entirely — the related record is not created or updated, and any existing record is left untouched. This is usually what you want, since hidden components have no state to save.
+
+If you need Filament to save the relationship even when the component is hidden — for example, when its field values are populated by [defaults](#setting-the-default-value-of-a-field) — call `saveRelationshipsWhenHidden()`:
 
 ```php
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Group;
 
-Section::make('Customer Details')
-    ->relationship(
-        'customer',
-        condition: fn (Section $component): bool => $component->isVisible(),
-    )
-    ->saveRelationshipsWhenHidden() // ⚠️ Essential
+Group::make()
+    ->relationship('metadata')
+    ->saveRelationshipsWhenHidden()
+    ->hidden()
     ->schema([
-        TextInput::make('name')
-            ->label('Customer Name'),
-        TextInput::make('email')
-            ->label('Email address')
-            ->email()
-            ->requiredWith('name'),
+        TextInput::make('source')
+            ->default('admin'),
     ])
-    ->visible(fn (): bool => $showCustomerSection)
 ```
 
-> ⚠️ **Important:** When using `condition` with visibility, you must also call `saveRelationshipsWhenHidden()` to ensure data persistence:
-
-Without `saveRelationshipsWhenHidden()`, the relationship data will be lost when the component is hidden. This method preserves the data even when the component isn't visible, allowing the condition to properly manage whether saving should occur.
+<Aside variant="warning">
+    Combining `saveRelationshipsWhenHidden()` with a `condition` that returns `false` while the component is hidden will cause any existing related record to be deleted when the form is submitted. If you only want to skip saving when the component is hidden, omit `saveRelationshipsWhenHidden()` and rely on the default behavior instead.
+</Aside>
 
 ## Global settings
 
