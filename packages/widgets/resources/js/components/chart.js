@@ -123,6 +123,22 @@ export default function chart({ cachedData, options, type }) {
                 options.elements ??= {}
                 options.elements.arc ??= {}
                 options.elements.arc.borderColor ??= '#ffffff'
+
+                options.plugins ??= {}
+                options.plugins.legend ??= {}
+                options.plugins.legend.labels ??= {}
+                options.plugins.legend.labels.generateLabels ??= (chart) => {
+                    const labels =
+                        Chart.overrides[type].plugins.legend.labels.generateLabels(
+                            chart,
+                        )
+
+                    for (const label of labels) {
+                        label.strokeStyle = darken(label.fillStyle, 0.2)
+                    }
+
+                    return labels
+                }
             }
 
             if (type === 'polarArea') {
