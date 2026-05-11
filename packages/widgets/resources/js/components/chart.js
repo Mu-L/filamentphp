@@ -84,7 +84,8 @@ export default function chart({ cachedData, options, type }) {
             const hasMaxHeight = this.$refs.canvas.style.maxHeight !== '100%'
 
             options ??= {}
-            options.animation ??= false
+            options.animation ??= {}
+            options.animation.duration ??= 0
             options.font ??= {}
             options.font.family ??= fontFamily
             options.borderWidth ??= 2
@@ -107,6 +108,10 @@ export default function chart({ cachedData, options, type }) {
                 options.scales.x.display ??= false
                 options.scales.y.display ??= false
                 options.scales.y.grid.display ??= false
+
+                options.elements ??= {}
+                options.elements.arc ??= {}
+                options.elements.arc.borderColor ??= '#ffffff'
             }
 
             if (type === 'polarArea') {
@@ -117,6 +122,7 @@ export default function chart({ cachedData, options, type }) {
             }
 
             this.applyChartColors(options)
+            this.normalizeBarDatasets(cachedData)
 
             new Chart(this.$refs.canvas, {
                 type,
@@ -133,8 +139,27 @@ export default function chart({ cachedData, options, type }) {
                 return
             }
 
+            this.normalizeBarDatasets(newData)
             chart.data = newData
             chart.update('resize')
+        },
+
+        normalizeBarDatasets(data) {
+            if (type !== 'bar') {
+                return
+            }
+
+            for (const dataset of data?.datasets ?? []) {
+                if (dataset.borderColor !== undefined) {
+                    continue
+                }
+
+                if (dataset.backgroundColor === undefined) {
+                    continue
+                }
+
+                dataset.borderColor = dataset.backgroundColor
+            }
         },
 
         updateChartTheme() {
@@ -152,12 +177,19 @@ export default function chart({ cachedData, options, type }) {
             const { backgroundColor, borderColor, textColor, gridColor } =
                 this.getChartColors()
 
+            const resolvedBorderColor = this.userBorderColor ?? borderColor
+
             options.backgroundColor =
                 this.userBackgroundColor ?? backgroundColor
-            options.borderColor = this.userBorderColor ?? borderColor
+            options.borderColor = resolvedBorderColor
             options.color = this.userTextColor ?? textColor
             options.pointBackgroundColor =
-                this.userPointBackgroundColor ?? borderColor
+                this.userPointBackgroundColor ?? resolvedBorderColor
+
+            options.elements ??= {}
+            options.elements.bar ??= {}
+            options.elements.bar.borderColor = resolvedBorderColor
+
             options.scales.x.grid.color = this.userXGridColor ?? gridColor
             options.scales.y.grid.color = this.userYGridColor ?? gridColor
 
