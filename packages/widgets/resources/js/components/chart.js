@@ -133,7 +133,7 @@ export default function chart({ cachedData, options, type }) {
             }
 
             this.applyChartColors(options)
-            this.normalizeBarDatasets(cachedData)
+            this.normalizeDatasets(cachedData)
 
             new Chart(this.$refs.canvas, {
                 type,
@@ -150,26 +150,34 @@ export default function chart({ cachedData, options, type }) {
                 return
             }
 
-            this.normalizeBarDatasets(newData)
+            this.normalizeDatasets(newData)
             chart.data = newData
             chart.update('resize')
         },
 
-        normalizeBarDatasets(data) {
-            if (type !== 'bar') {
-                return
-            }
-
+        normalizeDatasets(data) {
             for (const dataset of data?.datasets ?? []) {
-                if (dataset.backgroundColor === undefined) {
-                    continue
+                if (type === 'bar' && dataset.backgroundColor !== undefined) {
+                    dataset.borderColor ??= darken(
+                        dataset.backgroundColor,
+                        0.2,
+                    )
+                    dataset.hoverBorderColor ??= darken(
+                        dataset.backgroundColor,
+                        0.3,
+                    )
                 }
 
-                dataset.borderColor ??= darken(dataset.backgroundColor, 0.2)
-                dataset.hoverBorderColor ??= darken(
-                    dataset.backgroundColor,
-                    0.3,
-                )
+                if (type === 'scatter' && dataset.backgroundColor !== undefined) {
+                    dataset.borderColor ??= dataset.backgroundColor
+                }
+
+                if (
+                    ['line', 'scatter'].includes(type) &&
+                    dataset.borderColor !== undefined
+                ) {
+                    dataset.pointBackgroundColor ??= dataset.borderColor
+                }
             }
         },
 
