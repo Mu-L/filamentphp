@@ -13,7 +13,8 @@ class VerifyEmailAuthentication extends Notification implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        #[SensitiveParameter] public string $code,
+        #[SensitiveParameter]
+        public string $code,
         public int $codeExpiryMinutes,
     ) {}
 
