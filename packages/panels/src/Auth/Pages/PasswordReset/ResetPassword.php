@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Livewire\Attributes\Locked;
+use SensitiveParameter;
 
 /**
  * @property-read Schema $form
@@ -50,7 +51,7 @@ class ResetPassword extends SimplePage
     #[Locked]
     public ?string $token = null;
 
-    public function mount(?string $email = null, ?string $token = null): void
+    public function mount(?string $email = null, #[SensitiveParameter] ?string $token = null): void
     {
         if (Filament::auth()->check()) {
             redirect()->intended(Filament::getUrl());
@@ -265,7 +266,7 @@ class ResetPassword extends SimplePage
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    protected function getCredentialsFromFormData(array $data): array
+    protected function getCredentialsFromFormData(#[SensitiveParameter] array $data): array
     {
         return $data;
     }

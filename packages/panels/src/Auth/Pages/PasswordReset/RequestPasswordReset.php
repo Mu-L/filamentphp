@@ -28,6 +28,7 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Password;
 use LogicException;
+use SensitiveParameter;
 
 /**
  * @property-read Action $loginAction
@@ -66,7 +67,7 @@ class RequestPasswordReset extends SimplePage
 
         $status = Password::broker(Filament::getAuthPasswordBroker())->sendResetLink(
             $this->getCredentialsFromFormData($data),
-            function (CanResetPassword $user, string $token): void {
+            function (CanResetPassword $user, #[SensitiveParameter] string $token): void {
                 if (
                     ($user instanceof FilamentUser) &&
                     (! $user->canAccessPanel(Filament::getCurrentOrDefaultPanel()))
