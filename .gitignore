@@ -6,6 +6,8 @@
 /node_modules.nosync
 /vendor
 /vendor.nosync
+/.pint.cache
+/.prettiercache
 /.vscode
 .DS_Store
 .phpunit.cache
