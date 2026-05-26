@@ -44,16 +44,24 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout Filament source
+      - name: Checkout workflow source
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Checkout Filament source at target branch
         if: steps.resolve.outputs.skip == 'false'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ steps.resolve.outputs.branch }}
+          path: filament-source
           persist-credentials: false
 
       - name: Capture Filament source SHA
         if: steps.resolve.outputs.skip == 'false'
         id: source
+        working-directory: filament-source
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Initialise template repository working tree
@@ -89,6 +97,7 @@ jobs:
         if: steps.resolve.outputs.skip == 'false'
         env:
           BRANCH: ${{ steps.resolve.outputs.branch }}
+          FILAMENT_PACKAGES_PATH: ${{ github.workspace }}/filament-source/packages
         run: ./bin/issue-reproduction-template.sh "$BRANCH"
 
       - name: Sync generated app into template repo working tree
