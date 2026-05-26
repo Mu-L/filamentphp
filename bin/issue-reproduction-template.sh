@@ -2,6 +2,15 @@
 
 set -e
 
+FILAMENT_BRANCH=${1:?"Usage: $0 <filament_branch> (e.g. 4.x)"}
+if [[ ! "$FILAMENT_BRANCH" =~ ^([0-9]+)\.x$ ]]; then
+  echo "::error::Branch '$FILAMENT_BRANCH' is not in the form '<major>.x'"
+  exit 1
+fi
+FILAMENT_MAJOR="${BASH_REMATCH[1]}"
+FILAMENT_VERSION_STAMP="${FILAMENT_MAJOR}.0.0"
+FILAMENT_CONSTRAINT="^${FILAMENT_MAJOR}.0"
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FILAMENT_PACKAGES_PATH=${FILAMENT_PACKAGES_PATH:-"${REPO_ROOT}/packages"}
 STUBS_DIR="${REPO_ROOT}/bin/issue-reproduction-template/stubs"
@@ -40,11 +49,22 @@ touch database/database.sqlite
 mkdir -p packages
 cp -R "${FILAMENT_PACKAGES_PATH}/." packages/
 
+# Stamp every bundled Filament package with a major-aligned version. Filament's
+# package composer.json files have no version field upstream (versions come from
+# git tags) and we strip `.git` when bundling — so without this stamp the path
+# repo would advertise the packages as `dev-master`, and `^4.0` wouldn't resolve.
+# Stamping uniformly also keeps the inter-package `"self.version"` constraints
+# consistent across the bundled set.
+for pkg_composer in packages/*/composer.json; do
+  tmp=$(mktemp)
+  jq --arg ver "$FILAMENT_VERSION_STAMP" '.version = $ver' "$pkg_composer" > "$tmp" && mv "$tmp" "$pkg_composer"
+done
+
 composer config minimum-stability dev
 composer config prefer-stable true
 composer config repositories.filament-monorepo '{"type": "path", "url": "packages/*", "options": {"symlink": false}}'
 
-composer require filament/filament:"*" -W
+composer require filament/filament:"$FILAMENT_CONSTRAINT" -W
 php artisan filament:install --panels --no-interaction
 
 mkdir -p app/Filament/Pages/Auth
@@ -69,4 +89,4 @@ php artisan optimize:clear || true
 rm -rf vendor node_modules
 rm -f composer.lock package-lock.json
 
-echo "✓ Built: $REPRO_DIR (Laravel constraint: $LARAVEL_CONSTRAINT)"
+echo "✓ Built: $REPRO_DIR (Filament ${FILAMENT_CONSTRAINT}, Laravel ${LARAVEL_CONSTRAINT})"

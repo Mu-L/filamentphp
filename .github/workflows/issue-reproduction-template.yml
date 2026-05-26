@@ -93,7 +93,9 @@ jobs:
 
       - name: Build issue reproduction template
         if: steps.resolve.outputs.skip == 'false'
-        run: ./bin/issue-reproduction-template.sh
+        env:
+          BRANCH: ${{ steps.resolve.outputs.branch }}
+        run: ./bin/issue-reproduction-template.sh "$BRANCH"
 
       - name: Sync generated app into template repo working tree
         if: steps.resolve.outputs.skip == 'false'
