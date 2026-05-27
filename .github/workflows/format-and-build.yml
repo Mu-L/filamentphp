@@ -88,6 +88,14 @@ jobs:
         run: mkdir -p .rector.cache
       - name: Run code style fixes
         run: composer cs
+      - name: Inspect tool caches after composer cs (temporary diagnostic)
+        if: always()
+        run: |
+          echo "--- .rector.cache ---"
+          du -sh .rector.cache 2>&1 || true
+          find .rector.cache -type f 2>/dev/null | wc -l
+          echo "--- .pint.cache ---"
+          ls -la .pint.cache 2>&1 || true
       - name: Build assets
         run: npm run build
       - name: Pull changes
