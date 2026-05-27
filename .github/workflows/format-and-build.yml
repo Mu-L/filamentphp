@@ -70,12 +70,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
         with:
-          # Pinned to 8.4: nikic/php-parser's 8.5 support is partial, and rector's
-          # format-preserving printer round-trips some 8.5 source files with minor
-          # whitespace differences. That marks every file as changed, sticks the
-          # processFile loop's $fileHasChanged flag true, and skips the cache write
-          # for every file — leaving .rector.cache empty across runs.
-          php-version: 8.4
+          php-version: 8.5
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
@@ -96,11 +91,22 @@ jobs:
       - name: Inspect tool caches after composer cs (temporary diagnostic)
         if: always()
         run: |
-          echo "--- .rector.cache ---"
+          echo "=== after composer cs ==="
           du -sh .rector.cache 2>&1 || true
           find .rector.cache -type f 2>/dev/null | wc -l
-          echo "--- .pint.cache ---"
           ls -la .pint.cache 2>&1 || true
+          echo
+          echo "=== write-permission probe ==="
+          touch .rector.cache/.probe && echo "wrote .probe ok" || echo "WRITE FAILED"
+          ls -la .rector.cache/.probe 2>&1 || true
+          rm -f .rector.cache/.probe
+          echo
+          echo "=== dry-run rector with --debug, capture tail ==="
+          # Dry-run won't modify files; --debug prints per-file path. We just need to
+          # see whether any cache writes happen / where rector thinks the cache lives.
+          vendor/bin/rector process --dry-run --debug 2>&1 | tail -20 || true
+          echo "--- .rector.cache after dry-run ---"
+          find .rector.cache -type f 2>/dev/null | wc -l
       - name: Build assets
         run: npm run build
       - name: Pull changes
