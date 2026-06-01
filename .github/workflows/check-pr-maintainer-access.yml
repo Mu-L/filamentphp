@@ -3,7 +3,7 @@ name: check-pr-maintainer-access
 # pull_request_target is safe here because this workflow never checks out
 # the PR's code — it only reads PR metadata via GraphQL and posts a comment.
 on:
-  pull_request_target: # zizmor: ignore[dangerous-triggers]
+  pull_request_target:
     types:
       - opened
 
