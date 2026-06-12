@@ -30,7 +30,7 @@
         @else
             x-load
         @endif
-        x-load-src="{{ FilamentAsset::getAlpineComponentSrc('file-upload', 'filament/forms') }}"
+        x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('file-upload', 'filament/forms') }}"
         x-data="fileUploadFormComponent({
                     acceptedFileTypes: @js($getAcceptedFileTypes()),
                     imageEditorEmptyFillColor: @js($getImageEditorEmptyFillColor()),
@@ -267,10 +267,10 @@
                                                             <x-filament::button
                                                                 color="gray"
                                                                 grouped
-                                                                :icon="new HtmlString($action['iconHtml'])"
+                                                                :icon="new \Illuminate\Support\HtmlString($action['iconHtml'])"
                                                                 label-sr-only
                                                                 x-on:click.stop.prevent="{{ $action['alpineClickHandler'] }}"
-                                                                :x-tooltip="'{ content: ' . Js::from($action['label']) . ', theme: $store.theme }'"
+                                                                :x-tooltip="'{ content: ' . \Illuminate\Support\Js::from($action['label']) . ', theme: $store.theme }'"
                                                             >
                                                                 {{ $action['label'] }}
                                                             </x-filament::button>
@@ -293,7 +293,7 @@
                                                         >
                                                             @foreach ($ratiosChunk as $label => $ratio)
                                                                 <x-filament::button
-                                                                    :x-tooltip="'{ content: ' . Js::from(__('filament-forms::components.file_upload.editor.actions.set_aspect_ratio.label', ['ratio' => $label])) . ', theme: $store.theme }'"
+                                                                    :x-tooltip="'{ content: ' . \Illuminate\Support\Js::from(__('filament-forms::components.file_upload.editor.actions.set_aspect_ratio.label', ['ratio' => $label])) . ', theme: $store.theme }'"
                                                                     x-on:click.stop.prevent="currentRatio = '{{ $label }}'; editor.setAspectRatio({{ $ratio }})"
                                                                     color="gray"
                                                                     x-bind:class="{'!bg-gray-50 dark:!bg-gray-700': currentRatio === '{{ $label }}'}"

@@ -8,7 +8,7 @@
             \Filament\Support\prepare_inherited_attributes($attributes)
                 ->merge([
                     'wire:loading.attr' => 'disabled',
-                    'wire:target' => implode(',', Table::LOADING_TARGETS),
+                    'wire:target' => implode(',', \Filament\Tables\Table::LOADING_TARGETS),
                 ], escape: false)
         "
     />

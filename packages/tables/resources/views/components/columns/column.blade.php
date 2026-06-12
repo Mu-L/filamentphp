@@ -10,7 +10,6 @@
 
 @php
     use Filament\Support\Enums\Alignment;
-    use Illuminate\Support\Arr;
 
     $action = $column->getAction();
     $alignment = $column->getAlignment() ?? Alignment::Start;
@@ -23,7 +22,7 @@
         $alignment = filled($alignment) ? (Alignment::tryFrom($alignment) ?? $alignment) : null;
     }
 
-    $columnClasses = Arr::toCssClasses([
+    $columnClasses = \Illuminate\Support\Arr::toCssClasses([
         'flex w-full disabled:pointer-events-none',
         match ($alignment) {
             Alignment::Start => 'justify-start text-start',
@@ -58,9 +57,7 @@
         </a>
     @elseif (($action || $recordAction) && (! $isClickDisabled))
         @php
-            use Filament\Tables\Actions\Action;
-
-            if ($action instanceof Action) {
+            if ($action instanceof \Filament\Tables\Actions\Action) {
                 $wireClickAction = "mountTableAction('{$action->getName()}', '{$recordKey}')";
             } elseif ($action) {
                 $wireClickAction = "callTableColumnAction('{$name}', '{$recordKey}')";

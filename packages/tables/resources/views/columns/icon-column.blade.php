@@ -1,15 +1,13 @@
 @php
     use Filament\Tables\Columns\IconColumn\IconColumnSize;
-    use Illuminate\Support\Arr;
-    use Illuminate\Support\Collection;
 
     $arrayState = $getState();
 
-    if ($arrayState instanceof Collection) {
+    if ($arrayState instanceof \Illuminate\Support\Collection) {
         $arrayState = $arrayState->all();
     }
 
-    $arrayState = Arr::wrap($arrayState);
+    $arrayState = \Illuminate\Support\Arr::wrap($arrayState);
 @endphp
 
 <div

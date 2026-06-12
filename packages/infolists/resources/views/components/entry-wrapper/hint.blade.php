@@ -38,7 +38,7 @@
         <x-filament::icon
             x-data="{}"
             :icon="$icon"
-            :x-tooltip="filled($tooltip) ? '{ content: ' . Js::from($tooltip) . ', theme: $store.theme }' : null"
+            :x-tooltip="filled($tooltip) ? '{ content: ' . \Illuminate\Support\Js::from($tooltip) . ', theme: $store.theme }' : null"
             @class([
                 'fi-in-entry-wrp-hint-icon h-5 w-5',
                 match ($color) {

@@ -1,13 +1,11 @@
 @php
-    use Illuminate\Support\Arr;
-
     $brandName = filament()->getBrandName();
     $brandLogo = filament()->getBrandLogo();
     $brandLogoHeight = filament()->getBrandLogoHeight() ?? '1.5rem';
     $darkModeBrandLogo = filament()->getDarkModeBrandLogo();
     $hasDarkModeBrandLogo = filled($darkModeBrandLogo);
 
-    $getLogoClasses = fn (bool $isDarkMode): string => Arr::toCssClasses([
+    $getLogoClasses = fn (bool $isDarkMode): string => \Illuminate\Support\Arr::toCssClasses([
         'fi-logo',
         'flex' => ! $hasDarkModeBrandLogo,
         'flex dark:hidden' => $hasDarkModeBrandLogo && (! $isDarkMode),
@@ -18,7 +16,7 @@
 @endphp
 
 @capture($content, $logo, $isDarkMode = false)
-    @if ($logo instanceof Htmlable)
+    @if ($logo instanceof \Illuminate\Contracts\Support\Htmlable)
         <div
             {{
                 $attributes

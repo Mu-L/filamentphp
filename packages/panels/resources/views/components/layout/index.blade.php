@@ -35,14 +35,14 @@
             ])
         >
             @if (filament()->hasTopbar())
-                {{ FilamentView::renderHook(PanelsRenderHook::TOPBAR_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
 
                 <x-filament-panels::topbar :navigation="$navigation" />
 
-                {{ FilamentView::renderHook(PanelsRenderHook::TOPBAR_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
             @endif
 
-            {{ FilamentView::renderHook(PanelsRenderHook::CONTENT_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
+            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::CONTENT_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
 
             <main
                 @class([
@@ -73,16 +73,16 @@
                     },
                 ])
             >
-                {{ FilamentView::renderHook(PanelsRenderHook::CONTENT_START, scopes: $livewire?->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::CONTENT_START, scopes: $livewire?->getRenderHookScopes()) }}
 
                 {{ $slot }}
 
-                {{ FilamentView::renderHook(PanelsRenderHook::CONTENT_END, scopes: $livewire?->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::CONTENT_END, scopes: $livewire?->getRenderHookScopes()) }}
             </main>
 
-            {{ FilamentView::renderHook(PanelsRenderHook::CONTENT_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
+            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::CONTENT_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
 
-            {{ FilamentView::renderHook(PanelsRenderHook::FOOTER, scopes: $livewire?->getRenderHookScopes()) }}
+            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::FOOTER, scopes: $livewire?->getRenderHookScopes()) }}
         </div>
 
         @if (filament()->hasNavigation())

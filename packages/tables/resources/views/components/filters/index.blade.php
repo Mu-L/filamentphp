@@ -15,7 +15,7 @@
             <x-filament::link
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'color' => 'danger',
                             'tag' => 'button',
                             'wire:click' => 'resetTableFiltersForm',
@@ -31,7 +31,7 @@
             <x-filament::loading-indicator
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                             'wire:target' => 'tableFilters,applyTableFilters,resetTableFiltersForm',
                         ])

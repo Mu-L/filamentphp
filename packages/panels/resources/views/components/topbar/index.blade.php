@@ -13,7 +13,7 @@
     <nav
         class="flex h-16 items-center gap-x-4 bg-white px-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 md:px-6 lg:px-8"
     >
-        {{ FilamentView::renderHook(PanelsRenderHook::TOPBAR_START) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_START) }}
 
         @if (filament()->hasNavigation())
             <x-filament::icon-button
@@ -159,13 +159,13 @@
             @endif
             class="ms-auto flex items-center gap-x-4"
         >
-            {{ FilamentView::renderHook(PanelsRenderHook::GLOBAL_SEARCH_BEFORE) }}
+            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_BEFORE) }}
 
             @if (filament()->isGlobalSearchEnabled())
-                @livewire(GlobalSearch::class)
+                @livewire(Filament\Livewire\GlobalSearch::class)
             @endif
 
-            {{ FilamentView::renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER) }}
+            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER) }}
 
             @if (filament()->auth()->check())
                 @if (filament()->hasDatabaseNotifications())
@@ -178,6 +178,6 @@
             @endif
         </div>
 
-        {{ FilamentView::renderHook(PanelsRenderHook::TOPBAR_END) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_END) }}
     </nav>
 </div>

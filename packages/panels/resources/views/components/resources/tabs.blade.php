@@ -5,8 +5,8 @@
     @endphp
 
     <x-filament::tabs>
-        {{ FilamentView::renderHook(PanelsRenderHook::RESOURCE_TABS_START, scopes: $renderHookScopes) }}
-        {{ FilamentView::renderHook(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABS_START, scopes: $renderHookScopes) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::RESOURCE_TABS_START, scopes: $renderHookScopes) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABS_START, scopes: $renderHookScopes) }}
 
         @foreach ($tabs as $tabKey => $tab)
             @php
@@ -28,7 +28,7 @@
             </x-filament::tabs.item>
         @endforeach
 
-        {{ FilamentView::renderHook(PanelsRenderHook::RESOURCE_TABS_END, scopes: $renderHookScopes) }}
-        {{ FilamentView::renderHook(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABS_END, scopes: $renderHookScopes) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::RESOURCE_TABS_END, scopes: $renderHookScopes) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABS_END, scopes: $renderHookScopes) }}
     </x-filament::tabs>
 @endif

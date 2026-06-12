@@ -5,7 +5,7 @@
 <div
     {{ $attributes->class(['fi-page-sub-navigation-sidebar-ctn hidden w-72 flex-col md:flex']) }}
 >
-    {{ FilamentView::renderHook(PanelsRenderHook::PAGE_SUB_NAVIGATION_SIDEBAR_BEFORE, scopes: $this->getRenderHookScopes()) }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::PAGE_SUB_NAVIGATION_SIDEBAR_BEFORE, scopes: $this->getRenderHookScopes()) }}
 
     <ul
         wire:ignore
@@ -25,5 +25,5 @@
         @endforeach
     </ul>
 
-    {{ FilamentView::renderHook(PanelsRenderHook::PAGE_SUB_NAVIGATION_SIDEBAR_AFTER, scopes: $this->getRenderHookScopes()) }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::PAGE_SUB_NAVIGATION_SIDEBAR_AFTER, scopes: $this->getRenderHookScopes()) }}
 </div>

@@ -22,9 +22,7 @@
 
 @if (! ($dynamicComponent && $group))
     @php
-        use Filament\Actions\ActionGroup;
-
-        $group = ActionGroup::make($actions)
+        $group = \Filament\Actions\ActionGroup::make($actions)
             ->badgeColor($badgeColor)
             ->color($color)
             ->dropdownMaxHeight($dropdownMaxHeight)
@@ -67,8 +65,6 @@
     @endforeach
 @else
     @php
-        use Filament\Actions\ActionGroup;
-
         $actionLists = [];
         $singleActions = [];
 
@@ -77,7 +73,7 @@
                 continue;
             }
 
-            if ($action instanceof ActionGroup && (! $action->hasDropdown())) {
+            if ($action instanceof \Filament\Actions\ActionGroup && (! $action->hasDropdown())) {
                 if (count($singleActions)) {
                     $actionLists[] = $singleActions;
                     $singleActions = [];

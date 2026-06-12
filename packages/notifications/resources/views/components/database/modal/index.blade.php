@@ -5,10 +5,9 @@
 
 @php
     use Filament\Support\Enums\Alignment;
-    use Illuminate\Contracts\Pagination\Paginator;
 
     $hasNotifications = $notifications->count();
-    $isPaginated = $notifications instanceof Paginator && $notifications->hasPages();
+    $isPaginated = $notifications instanceof \Illuminate\Contracts\Pagination\Paginator && $notifications->hasPages();
 @endphp
 
 <x-filament::modal

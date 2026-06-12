@@ -1,4 +1,4 @@
-@if ($this instanceof HasActions && (! $this->hasActionsModalRendered))
+@if ($this instanceof \Filament\Actions\Contracts\HasActions && (! $this->hasActionsModalRendered))
     <form wire:submit.prevent="callMountedAction">
         @php
             $action = $this->getMountedAction();
@@ -64,7 +64,7 @@
     @endphp
 @endif
 
-@if ($this instanceof HasTable && (! $this->hasTableModalRendered))
+@if ($this instanceof \Filament\Tables\Contracts\HasTable && (! $this->hasTableModalRendered))
     <form wire:submit.prevent="callMountedTableAction">
         @php
             $action = $this->getMountedTableAction();
@@ -190,7 +190,7 @@
     @endphp
 @endif
 
-@if ($this instanceof HasInfolists && (! $this->hasInfolistsModalRendered))
+@if ($this instanceof \Filament\Infolists\Contracts\HasInfolists && (! $this->hasInfolistsModalRendered))
     <form wire:submit.prevent="callMountedInfolistAction">
         @php
             $action = $this->getMountedInfolistAction();

@@ -26,8 +26,6 @@
 ])
 
 @php
-    use Illuminate\Support\Arr;
-
     if (! $iconPosition instanceof IconPosition) {
         $iconPosition = filled($iconPosition) ? (IconPosition::tryFrom($iconPosition) ?? $iconPosition) : null;
     }
@@ -42,7 +40,7 @@
 
     $isDeletable = count($deleteButton?->attributes->getAttributes() ?? []) > 0;
 
-    $iconClasses = Arr::toCssClasses([
+    $iconClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-badge-icon h-4 w-4',
         match ($iconSize) {
             IconSize::Small => 'h-4 w-4',
@@ -56,7 +54,7 @@
         },
     ]);
 
-    $iconStyles = Arr::toCssStyles([
+    $iconStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $color,
             shades: [500],
@@ -134,7 +132,7 @@
             <x-filament::icon
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'alias' => $iconAlias,
                             'icon' => $icon,
                             'wire:loading.remove.delay.' . config('filament.livewire_loading_delay', 'default') => $hasLoadingIndicator,
@@ -151,7 +149,7 @@
             <x-filament::loading-indicator
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                             'wire:target' => $loadingIndicatorTarget,
                         ])
@@ -209,7 +207,7 @@
             <x-filament::icon
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'alias' => $iconAlias,
                             'icon' => $icon,
                             'wire:loading.remove.delay.' . config('filament.livewire_loading_delay', 'default') => $hasLoadingIndicator,
@@ -226,7 +224,7 @@
             <x-filament::loading-indicator
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                             'wire:target' => $loadingIndicatorTarget,
                         ])

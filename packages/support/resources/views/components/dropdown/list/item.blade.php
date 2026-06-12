@@ -23,9 +23,7 @@
 ])
 
 @php
-    use Illuminate\Support\Arr;
-
-    $buttonClasses = Arr::toCssClasses([
+    $buttonClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-dropdown-list-item flex w-full items-center gap-2 whitespace-nowrap rounded-md p-2 text-sm transition-colors duration-75 outline-none disabled:pointer-events-none disabled:opacity-70',
         'pointer-events-none opacity-70' => $disabled,
         match ($color) {
@@ -37,7 +35,7 @@
         is_string($color) ? "fi-color-{$color}" : null,
     ]);
 
-    $buttonStyles = Arr::toCssStyles([
+    $buttonStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $color,
             shades: [50, 400],
@@ -47,7 +45,7 @@
 
     $iconColor ??= $color;
 
-    $iconClasses = Arr::toCssClasses([
+    $iconClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-dropdown-list-item-icon',
         match ($iconSize) {
             IconSize::Small, 'sm' => 'h-4 w-4',
@@ -61,7 +59,7 @@
         },
     ]);
 
-    $iconStyles = Arr::toCssStyles([
+    $iconStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $iconColor,
             shades: [400, 500],
@@ -71,7 +69,7 @@
 
     $imageClasses = 'fi-dropdown-list-item-image h-5 w-5 rounded-full bg-cover bg-center';
 
-    $labelClasses = Arr::toCssClasses([
+    $labelClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-dropdown-list-item-label flex-1 truncate text-start',
         match ($color) {
             'gray' => 'text-gray-700 dark:text-gray-200',
@@ -79,7 +77,7 @@
         },
     ]);
 
-    $labelStyles = Arr::toCssStyles([
+    $labelStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $color,
             shades: [400, 600],
@@ -129,7 +127,7 @@
             <x-filament::icon
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'alias' => $iconAlias,
                             'icon' => $icon,
                             'wire:loading.remove.delay.' . config('filament.livewire_loading_delay', 'default') => $hasLoadingIndicator,
@@ -153,7 +151,7 @@
             <x-filament::loading-indicator
                 :attributes="
                     \Filament\Support\prepare_inherited_attributes(
-                        new ComponentAttributeBag([
+                        new \Illuminate\View\ComponentAttributeBag([
                             'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                             'wire:target' => $loadingIndicatorTarget,
                         ])

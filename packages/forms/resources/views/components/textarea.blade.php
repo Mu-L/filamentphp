@@ -41,7 +41,7 @@
                 @else
                     x-load
                 @endif
-                x-load-src="{{ FilamentAsset::getAlpineComponentSrc('textarea', 'filament/forms') }}"
+                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('textarea', 'filament/forms') }}"
                 x-data="textareaFormComponent({
                             initialHeight: @js($initialHeight),
                             shouldAutosize: @js($shouldAutosize),

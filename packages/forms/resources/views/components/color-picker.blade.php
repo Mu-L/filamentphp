@@ -21,7 +21,7 @@
 <x-dynamic-component
     :component="$getFieldWrapperView()"
     :field="$field"
-    :inline-label-vertical-alignment="VerticalAlignment::Center"
+    :inline-label-vertical-alignment="\Filament\Support\Enums\VerticalAlignment::Center"
 >
     <x-filament::input.wrapper
         :disabled="$isDisabled"
@@ -47,7 +47,7 @@
             @else
                 x-load
             @endif
-            x-load-src="{{ FilamentAsset::getAlpineComponentSrc('color-picker', 'filament/forms') }}"
+            x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('color-picker', 'filament/forms') }}"
             x-data="colorPickerFormComponent({
                         isAutofocused: @js($isAutofocused()),
                         isDisabled: @js($isDisabled),

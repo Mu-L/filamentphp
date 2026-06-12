@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    @if (collect($indicators)->contains(fn (Indicator $indicator): bool => $indicator->isRemovable()))
+    @if (collect($indicators)->contains(fn (\Filament\Tables\Filters\Indicator $indicator): bool => $indicator->isRemovable()))
         <div class="mt-0.5">
             <x-filament::icon-button
                 color="gray"

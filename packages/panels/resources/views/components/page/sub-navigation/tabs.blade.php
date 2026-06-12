@@ -38,7 +38,7 @@
                         >
                             {{ $navigationItem->getLabel() }}
 
-                            @if ($navigationItemIcon instanceof Htmlable)
+                            @if ($navigationItemIcon instanceof \Illuminate\Contracts\Support\Htmlable)
                                 <x-slot name="icon">
                                     {{ $navigationItemIcon }}
                                 </x-slot>
@@ -65,7 +65,7 @@
                 >
                     {{ $navigationItem->getLabel() }}
 
-                    @if ($navigationItemIcon instanceof Htmlable)
+                    @if ($navigationItemIcon instanceof \Illuminate\Contracts\Support\Htmlable)
                         <x-slot name="icon">
                             {{ $navigationItemIcon }}
                         </x-slot>

@@ -5,7 +5,7 @@
 <x-dynamic-component
     :component="$getFieldWrapperView()"
     :field="$field"
-    :inline-label-vertical-alignment="VerticalAlignment::Center"
+    :inline-label-vertical-alignment="\Filament\Support\Enums\VerticalAlignment::Center"
 >
     @capture($content)
         <x-filament::input.checkbox

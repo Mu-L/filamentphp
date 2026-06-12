@@ -1,7 +1,4 @@
 @php
-    use Illuminate\Database\Eloquent\Model;
-    use Illuminate\Support\Arr;
-
     $currentTenant = filament()->getTenant();
     $currentTenantName = filament()->getTenantName($currentTenant);
     $items = filament()->getTenantMenuItems();
@@ -23,13 +20,13 @@
 
     $canSwitchTenants = count($tenants = array_filter(
         filament()->getUserTenants(filament()->auth()->user()),
-        fn (Model $tenant): bool => ! $tenant->is($currentTenant),
+        fn (\Illuminate\Database\Eloquent\Model $tenant): bool => ! $tenant->is($currentTenant),
     ));
 
-    $items = Arr::except($items, ['billing', 'profile', 'register']);
+    $items = \Illuminate\Support\Arr::except($items, ['billing', 'profile', 'register']);
 @endphp
 
-{{ FilamentView::renderHook(PanelsRenderHook::TENANT_MENU_BEFORE) }}
+{{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TENANT_MENU_BEFORE) }}
 
 <x-filament::dropdown
     placement="bottom-start"
@@ -69,7 +66,7 @@
                 @endif
                 class="grid justify-items-start text-start"
             >
-                @if ($currentTenant instanceof HasCurrentTenantLabel)
+                @if ($currentTenant instanceof \Filament\Models\Contracts\HasCurrentTenantLabel)
                     <span class="text-xs text-gray-500 dark:text-gray-400">
                         {{ $currentTenant->getCurrentTenantLabel() }}
                     </span>
@@ -95,7 +92,7 @@
                 <x-filament::dropdown.list.item
                     :color="$profileItem?->getColor()"
                     :href="$profileItemUrl ?? filament()->getTenantProfileUrl()"
-                    :icon="$profileItem?->getIcon() ?? FilamentIcon::resolve('panels::tenant-menu.profile-button') ?? 'heroicon-m-cog-6-tooth'"
+                    :icon="$profileItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.profile-button') ?? 'heroicon-m-cog-6-tooth'"
                     tag="a"
                     :target="($profileItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
                 >
@@ -107,7 +104,7 @@
                 <x-filament::dropdown.list.item
                     :color="$billingItem?->getColor() ?? 'gray'"
                     :href="$billingItemUrl ?? filament()->getTenantBillingUrl()"
-                    :icon="$billingItem?->getIcon() ?? FilamentIcon::resolve('panels::tenant-menu.billing-button') ?? 'heroicon-m-credit-card'"
+                    :icon="$billingItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.billing-button') ?? 'heroicon-m-credit-card'"
                     tag="a"
                     :target="($billingItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
                 >
@@ -158,7 +155,7 @@
             <x-filament::dropdown.list.item
                 :color="$registrationItem?->getColor()"
                 :href="$registrationItemUrl ?? filament()->getTenantRegistrationUrl()"
-                :icon="$registrationItem?->getIcon() ?? FilamentIcon::resolve('panels::tenant-menu.registration-button') ?? 'heroicon-m-plus'"
+                :icon="$registrationItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.registration-button') ?? 'heroicon-m-plus'"
                 tag="a"
                 :target="($registrationItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
             >
@@ -168,4 +165,4 @@
     @endif
 </x-filament::dropdown>
 
-{{ FilamentView::renderHook(PanelsRenderHook::TENANT_MENU_AFTER) }}
+{{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TENANT_MENU_AFTER) }}

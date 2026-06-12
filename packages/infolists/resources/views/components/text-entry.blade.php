@@ -8,10 +8,6 @@
 
 <x-dynamic-component :component="$getEntryWrapperView()" :entry="$entry">
     @php
-        use Filament\Support\Contracts\HasLabel;
-        use Illuminate\Support\Arr;
-        use Illuminate\Support\Collection;
-
         $alignment = $getAlignment();
         $isBadge = $isBadge();
         $isBulleted = $isBulleted();
@@ -28,7 +24,7 @@
 
         $arrayState = $getState();
 
-        if ($arrayState instanceof Collection) {
+        if ($arrayState instanceof \Illuminate\Support\Collection) {
             $arrayState = $arrayState->all();
         }
 
@@ -49,14 +45,14 @@
                 $arrayState = implode(
                     ', ',
                     array_map(
-                        fn ($value) => $value instanceof HasLabel ? $value->getLabel() : $value,
+                        fn ($value) => $value instanceof \Filament\Support\Contracts\HasLabel ? $value->getLabel() : $value,
                         $arrayState,
                     ),
                 );
             }
         }
 
-        $arrayState = Arr::wrap($arrayState);
+        $arrayState = \Illuminate\Support\Arr::wrap($arrayState);
     @endphp
 
     <div
@@ -110,8 +106,6 @@
                         @if (filled($formattedState = $formatState($state)) &&
                              (! ($isListWithLineBreaks && (! $isLimitedListExpandable) && ($loop->iteration > $listLimit))))
                             @php
-                                use Illuminate\Support\Arr;
-
                                 $color = $getColor($state);
                                 $copyableState = $getCopyableState($state) ?? $state;
                                 $copyMessage = $getCopyMessage($state);
@@ -124,7 +118,7 @@
                                 $size = $getSize($state);
                                 $weight = $getWeight($state);
 
-                                $proseClasses = Arr::toCssClasses([
+                                $proseClasses = \Illuminate\Support\Arr::toCssClasses([
                                     'fi-in-text-item-prose prose max-w-none dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
                                     'pt-2' => ! $isLabelHidden(),
                                     match ($size) {
@@ -136,7 +130,7 @@
                                     },
                                 ]);
 
-                                $iconClasses = Arr::toCssClasses([
+                                $iconClasses = \Illuminate\Support\Arr::toCssClasses([
                                     'fi-in-text-item-icon h-5 w-5 shrink-0',
                                     match ($iconColor) {
                                         'gray', null => 'text-gray-400 dark:text-gray-500',
@@ -144,7 +138,7 @@
                                     },
                                 ]);
 
-                                $iconStyles = Arr::toCssStyles([
+                                $iconStyles = \Illuminate\Support\Arr::toCssStyles([
                                     \Filament\Support\get_color_css_variables(
                                         $iconColor,
                                         shades: [500],

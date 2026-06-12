@@ -184,7 +184,7 @@
                         $itemIcon = null;
                         $itemActiveIcon = null;
                     } else {
-                        throw new Exception('Navigation group [' . $label . '] has an icon but one or more of its items also have icons. Either the group or its items can have icons, but not both. This is to ensure a proper user experience.');
+                        throw new \Exception('Navigation group [' . $label . '] has an icon but one or more of its items also have icons. Either the group or its items can have icons, but not both. This is to ensure a proper user experience.');
                     }
                 }
             @endphp
@@ -207,13 +207,13 @@
             >
                 {{ $item->getLabel() }}
 
-                @if ($itemIcon instanceof Htmlable)
+                @if ($itemIcon instanceof \Illuminate\Contracts\Support\Htmlable)
                     <x-slot name="icon">
                         {{ $itemIcon }}
                     </x-slot>
                 @endif
 
-                @if ($itemActiveIcon instanceof Htmlable)
+                @if ($itemActiveIcon instanceof \Illuminate\Contracts\Support\Htmlable)
                     <x-slot name="activeIcon">
                         {{ $itemActiveIcon }}
                     </x-slot>

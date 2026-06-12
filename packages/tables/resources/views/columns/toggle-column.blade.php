@@ -77,7 +77,7 @@
             x-bind:class="
                 (state
                     ? '{{
-                        Arr::toCssClasses([
+                        \Illuminate\Support\Arr::toCssClasses([
                             match ($onColor) {
                                 'gray' => 'bg-gray-200 dark:bg-gray-700',
                                 default => 'fi-color-custom bg-custom-600',
@@ -86,7 +86,7 @@
                         ])
                     }}'
                     : '{{
-                        Arr::toCssClasses([
+                        \Illuminate\Support\Arr::toCssClasses([
                             match ($offColor) {
                                 'gray' => 'bg-gray-200 dark:bg-gray-700',
                                 default => 'fi-color-custom bg-custom-600',

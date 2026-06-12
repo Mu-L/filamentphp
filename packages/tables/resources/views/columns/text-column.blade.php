@@ -1,12 +1,9 @@
 @php
-    use Filament\Support\Contracts\HasLabel;
     use Filament\Support\Enums\Alignment;
     use Filament\Support\Enums\FontFamily;
     use Filament\Support\Enums\FontWeight;
     use Filament\Support\Enums\IconPosition;
     use Filament\Tables\Columns\TextColumn\TextColumnSize;
-    use Illuminate\Support\Arr;
-    use Illuminate\Support\Collection;
 
     $alignment = $getAlignment();
     $canWrap = $canWrap();
@@ -25,7 +22,7 @@
 
     $arrayState = $getState();
 
-    if ($arrayState instanceof Collection) {
+    if ($arrayState instanceof \Illuminate\Support\Collection) {
         $arrayState = $arrayState->all();
     }
 
@@ -47,7 +44,7 @@
                 ', ',
                 array_map(
                     function ($value) {
-                        if ($value instanceof HasLabel) {
+                        if ($value instanceof \Filament\Support\Contracts\HasLabel) {
                             return $value->getLabel();
                         }
 
@@ -63,7 +60,7 @@
         }
     }
 
-    $arrayState = Arr::wrap($arrayState);
+    $arrayState = \Illuminate\Support\Arr::wrap($arrayState);
 @endphp
 
 <div
@@ -127,8 +124,6 @@
                 @if (filled($formattedState = $formatState($state)) &&
                      (! ($isListWithLineBreaks && (! $isLimitedListExpandable) && ($loop->iteration > $listLimit))))
                     @php
-                        use Illuminate\Support\Arr;
-
                         $color = $getColor($state);
                         $copyableState = $getCopyableState($state) ?? $state;
                         $copyMessage = $getCopyMessage($state);
@@ -141,7 +136,7 @@
                         $size = $getSize($state);
                         $weight = $getWeight($state);
 
-                        $iconClasses = Arr::toCssClasses([
+                        $iconClasses = \Illuminate\Support\Arr::toCssClasses([
                             'fi-ta-text-item-icon h-5 w-5',
                             match ($iconColor) {
                                 'gray', null => 'text-gray-400 dark:text-gray-500',
@@ -149,7 +144,7 @@
                             },
                         ]);
 
-                        $iconStyles = Arr::toCssStyles([
+                        $iconStyles = \Illuminate\Support\Arr::toCssStyles([
                             \Filament\Support\get_color_css_variables(
                                 $iconColor,
                                 shades: [500],

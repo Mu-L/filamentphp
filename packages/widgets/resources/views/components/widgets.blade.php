@@ -16,10 +16,8 @@
     :attributes="\Filament\Support\prepare_inherited_attributes($attributes)->class('fi-wi gap-6')"
 >
     @php
-        use Filament\Widgets\WidgetConfiguration;
-
-        $normalizeWidgetClass = function (string | WidgetConfiguration $widget): string {
-            if ($widget instanceof WidgetConfiguration) {
+        $normalizeWidgetClass = function (string | Filament\Widgets\WidgetConfiguration $widget): string {
+            if ($widget instanceof \Filament\Widgets\WidgetConfiguration) {
                 return $widget->widget;
             }
 

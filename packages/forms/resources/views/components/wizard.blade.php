@@ -119,8 +119,8 @@
         type="hidden"
         value="{{
             collect($getChildComponentContainer()->getComponents())
-                ->filter(static fn (Step $step): bool => $step->isVisible())
-                ->map(static fn (Step $step) => $step->getId())
+                ->filter(static fn (\Filament\Forms\Components\Wizard\Step $step): bool => $step->isVisible())
+                ->map(static fn (\Filament\Forms\Components\Wizard\Step $step) => $step->getId())
                 ->values()
                 ->toJson()
         }}"

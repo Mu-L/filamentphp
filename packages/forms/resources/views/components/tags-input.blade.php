@@ -56,7 +56,7 @@
             @else
                 x-load
             @endif
-            x-load-src="{{ FilamentAsset::getAlpineComponentSrc('tags-input', 'filament/forms') }}"
+            x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('tags-input', 'filament/forms') }}"
             x-data="tagsInputFormComponent({
                         state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                         splitKeys: @js($getSplitKeys()),

@@ -1,7 +1,6 @@
 @php
     use Filament\Support\Enums\IconPosition;
     use Filament\Support\Facades\FilamentView;
-    use Illuminate\Support\Arr;
 
     $chartColor = $getChartColor() ?? 'gray';
     $descriptionColor = $getDescriptionColor() ?? 'gray';
@@ -11,7 +10,7 @@
     $tag = $url ? 'a' : 'div';
     $dataChecksum = $generateDataChecksum();
 
-    $descriptionIconClasses = Arr::toCssClasses([
+    $descriptionIconClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-wi-stats-overview-stat-description-icon h-5 w-5',
         match ($descriptionColor) {
             'gray' => 'text-gray-400 dark:text-gray-500',
@@ -19,7 +18,7 @@
         },
     ]);
 
-    $descriptionIconStyles = Arr::toCssStyles([
+    $descriptionIconStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $descriptionColor,
             shades: [500],
@@ -111,7 +110,7 @@
                 @else
                     x-load
                 @endif
-                x-load-src="{{ FilamentAsset::getAlpineComponentSrc('stats-overview/stat/chart', 'filament/widgets') }}"
+                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('stats-overview/stat/chart', 'filament/widgets') }}"
                 x-data="statsOverviewStatChart({
                             dataChecksum: @js($dataChecksum),
                             labels: @js(array_keys($chart)),

@@ -1,10 +1,8 @@
 @php
-    use Illuminate\Support\Arr;
-
     $id = $getId();
     $isContained = $getContainer()->getParentComponent()->isContained();
 
-    $activeTabClasses = Arr::toCssClasses([
+    $activeTabClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-active',
         'p-6' => $isContained,
         'mt-6' => ! $isContained,
@@ -26,7 +24,7 @@
                 'id' => $id,
                 'role' => 'tabpanel',
                 'tabindex' => '0',
-                'wire:key' => "{$this->getId()}.{$getStatePath()}." . Tab::class . ".tabs.{$id}",
+                'wire:key' => "{$this->getId()}.{$getStatePath()}." . \Filament\Forms\Components\Tabs\Tab::class . ".tabs.{$id}",
             ], escape: false)
             ->merge($getExtraAttributes(), escape: false)
             ->class(['fi-fo-tabs-tab outline-none'])

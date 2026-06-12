@@ -1,14 +1,11 @@
 @php
-    use Illuminate\Support\Arr;
-    use Illuminate\Support\Collection;
-
     $state = $getState();
 
-    if ($state instanceof Collection) {
+    if ($state instanceof \Illuminate\Support\Collection) {
         $state = $state->all();
     }
 
-    $state = Arr::wrap($state);
+    $state = \Illuminate\Support\Arr::wrap($state);
 
     $limit = $getLimit();
     $limitedState = array_slice($state, 0, $limit);
@@ -31,7 +28,7 @@
         $limitedStateCount = 1;
     }
 
-    $ringClasses = Arr::toCssClasses([
+    $ringClasses = \Illuminate\Support\Arr::toCssClasses([
         'ring-white dark:ring-gray-900',
         match ($ring) {
             0 => null,

@@ -25,7 +25,7 @@
 <x-dynamic-component
     :component="$getFieldWrapperView()"
     :field="$field"
-    :inline-label-vertical-alignment="VerticalAlignment::Center"
+    :inline-label-vertical-alignment="\Filament\Support\Enums\VerticalAlignment::Center"
 >
     <x-filament::input.wrapper
         :disabled="$isDisabled"
@@ -54,8 +54,8 @@
                             'inlinePrefix' => $isPrefixInline && (count($prefixActions) || $prefixIcon || filled($prefixLabel)),
                             'inlineSuffix' => $isSuffixInline && (count($suffixActions) || $suffixIcon || filled($suffixLabel)),
                             'list' => $datalistOptions ? $id . '-list' : null,
-                            'max' => $hasTime ? $maxDate : ($maxDate ? Carbon::parse($maxDate)->toDateString() : null),
-                            'min' => $hasTime ? $minDate : ($minDate ? Carbon::parse($minDate)->toDateString() : null),
+                            'max' => $hasTime ? $maxDate : ($maxDate ? \Carbon\Carbon::parse($maxDate)->toDateString() : null),
+                            'min' => $hasTime ? $minDate : ($minDate ? \Carbon\Carbon::parse($minDate)->toDateString() : null),
                             'placeholder' => filled($placeholder) ? e($placeholder) : null,
                             'readonly' => $isReadOnly(),
                             'required' => $isRequired() && (! $isConcealed()),
@@ -73,7 +73,7 @@
                 @else
                     x-load
                 @endif
-                x-load-src="{{ FilamentAsset::getAlpineComponentSrc('date-time-picker', 'filament/forms') }}"
+                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('date-time-picker', 'filament/forms') }}"
                 x-data="dateTimePickerFormComponent({
                             defaultFocusedDate: @js($defaultFocusedDate),
                             displayFormat:

@@ -32,7 +32,7 @@
             x-data="{}"
             :attributes="
                 \Filament\Support\prepare_inherited_attributes(
-                    new ComponentAttributeBag([
+                    new \Illuminate\View\ComponentAttributeBag([
                         'wire:model.live.debounce.' . $debounce => 'search',
                         'x-mousetrap.global.' . collect($keyBindings)->map(fn (string $keyBinding): string => str_replace('+', '-', $keyBinding))->implode('.') => $keyBindings ? 'document.getElementById($id(\'input\')).focus()' : null,
                     ])

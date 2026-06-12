@@ -38,7 +38,7 @@
             @else
                 x-load
             @endif
-            x-load-src="{{ FilamentAsset::getAlpineComponentSrc('key-value', 'filament/forms') }}"
+            x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('key-value', 'filament/forms') }}"
             x-data="keyValueFormComponent({
                         state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                     })"
@@ -125,7 +125,7 @@
                                     x-model="row.key"
                                     :attributes="
                                         \Filament\Support\prepare_inherited_attributes(
-                                            new ComponentAttributeBag([
+                                            new \Illuminate\View\ComponentAttributeBag([
                                                 'x-on:input.debounce.' . ($debounce ?? '500ms') => 'updateState',
                                             ])
                                         )
@@ -142,7 +142,7 @@
                                     x-model="row.value"
                                     :attributes="
                                         \Filament\Support\prepare_inherited_attributes(
-                                            new ComponentAttributeBag([
+                                            new \Illuminate\View\ComponentAttributeBag([
                                                 'x-on:input.debounce.' . ($debounce ?? '500ms') => 'updateState',
                                             ])
                                         )

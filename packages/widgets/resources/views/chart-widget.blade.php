@@ -41,7 +41,7 @@
                 @else
                     x-load
                 @endif
-                x-load-src="{{ FilamentAsset::getAlpineComponentSrc('chart', 'filament/widgets') }}"
+                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('chart', 'filament/widgets') }}"
                 wire:ignore
                 x-data="chart({
                             cachedData: @js($this->getCachedData()),

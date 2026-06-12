@@ -7,10 +7,10 @@
 @props([
     'alignment' => Alignment::Start,
     'ariaLabelledby' => null,
-    'autofocus' => Modal::$isAutofocused,
-    'closeButton' => Modal::$hasCloseButton,
-    'closeByClickingAway' => Modal::$isClosedByClickingAway,
-    'closeByEscaping' => Modal::$isClosedByEscaping,
+    'autofocus' => \Filament\Support\View\Components\Modal::$isAutofocused,
+    'closeButton' => \Filament\Support\View\Components\Modal::$hasCloseButton,
+    'closeByClickingAway' => \Filament\Support\View\Components\Modal::$isClosedByClickingAway,
+    'closeByEscaping' => \Filament\Support\View\Components\Modal::$isClosedByEscaping,
     'closeEventName' => 'close-modal',
     'description' => null,
     'displayClasses' => 'inline-block',
@@ -34,8 +34,6 @@
 ])
 
 @php
-    use Illuminate\Support\Js;
-
     $hasDescription = filled($description);
     $hasFooter = (! \Filament\Support\is_slot_empty($footer)) || (is_array($footerActions) && count($footerActions)) || (! is_array($footerActions) && (! \Filament\Support\is_slot_empty($footerActions)));
     $hasHeading = filled($heading);
@@ -54,7 +52,7 @@
         $width = filled($width) ? (MaxWidth::tryFrom($width) ?? $width) : null;
     }
 
-    $closeEventHandler = filled($id) ? '$dispatch(' . Js::from($closeEventName) . ', { id: ' . Js::from($id) . ' })' : 'close()';
+    $closeEventHandler = filled($id) ? '$dispatch(' . \Illuminate\Support\Js::from($closeEventName) . ', { id: ' . \Illuminate\Support\Js::from($id) . ' })' : 'close()';
 @endphp
 
 <div
@@ -186,7 +184,7 @@
                         wire:key="{{ isset($this) ? "{$this->getId()}." : '' }}modal.{{ $id }}.window"
                     @endif
                     {{
-                        ($extraModalWindowAttributeBag ?? new ComponentAttributeBag)->class([
+                        ($extraModalWindowAttributeBag ?? new \Illuminate\View\ComponentAttributeBag)->class([
                             'fi-modal-window pointer-events-auto relative row-start-2 flex w-full cursor-default flex-col bg-white shadow-xl ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10',
                             'fi-modal-slide-over-window ms-auto overflow-y-auto' => $slideOver,
                             // Using an arbitrary value instead of the h-dvh class that was added in Tailwind CSS v3.4.0

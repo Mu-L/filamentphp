@@ -4,7 +4,7 @@
 ])
 
 <div {{ $attributes->class(['fi-simple-page']) }}>
-    {{ FilamentView::renderHook(PanelsRenderHook::SIMPLE_PAGE_START, scopes: $this->getRenderHookScopes()) }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_START, scopes: $this->getRenderHookScopes()) }}
 
     <section class="grid auto-cols-fr gap-y-6">
         <x-filament-panels::header.simple
@@ -16,9 +16,9 @@
         {{ $slot }}
     </section>
 
-    @if (! $this instanceof HasTable)
+    @if (! $this instanceof \Filament\Tables\Contracts\HasTable)
         <x-filament-actions::modals />
     @endif
 
-    {{ FilamentView::renderHook(PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
 </div>

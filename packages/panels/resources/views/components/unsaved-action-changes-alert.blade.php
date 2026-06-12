@@ -8,14 +8,14 @@
 
                 if (
                     [
-                        ...(@js($this instanceof HasActions) ? ($wire.mountedActions ?? []) : []),
-                        ...(@js($this instanceof HasForms)
+                        ...(@js($this instanceof \Filament\Actions\Contracts\HasActions) ? ($wire.mountedActions ?? []) : []),
+                        ...(@js($this instanceof \Filament\Forms\Contracts\HasForms)
                             ? ($wire.mountedFormComponentActions ?? [])
                             : []),
-                        ...(@js($this instanceof HasInfolists)
+                        ...(@js($this instanceof \Filament\Infolists\Contracts\HasInfolists)
                             ? ($wire.mountedInfolistActions ?? [])
                             : []),
-                        ...(@js($this instanceof HasTable)
+                        ...(@js($this instanceof \Filament\Tables\Contracts\HasTable)
                             ? [
                                   ...($wire.mountedTableActions ?? []),
                                   ...($wire.mountedTableBulkAction

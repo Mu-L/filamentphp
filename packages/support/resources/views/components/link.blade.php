@@ -31,8 +31,6 @@
 ])
 
 @php
-    use Illuminate\Support\Arr;
-
     if (! $iconPosition instanceof IconPosition) {
         $iconPosition = filled($iconPosition) ? (IconPosition::tryFrom($iconPosition) ?? $iconPosition) : null;
     }
@@ -50,7 +48,7 @@
         $iconSize = filled($iconSize) ? (IconSize::tryFrom($iconSize) ?? $iconSize) : null;
     }
 
-    $linkClasses = Arr::toCssClasses([
+    $linkClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-link group/link relative inline-flex items-center justify-center outline-none',
         'pointer-events-none opacity-70' => $disabled,
         ($size instanceof ActionSize) ? "fi-size-{$size->value}" : null,
@@ -72,7 +70,7 @@
     ]);
 
     if (! $labelSrOnly) {
-        $labelClasses = Arr::toCssClasses([
+        $labelClasses = \Illuminate\Support\Arr::toCssClasses([
             match ($weight) {
                 FontWeight::Thin, 'thin' => 'font-thin',
                 FontWeight::ExtraLight, 'extralight' => 'font-extralight',
@@ -103,7 +101,7 @@
         $labelClasses = 'sr-only';
     }
 
-    $labelStyles = Arr::toCssStyles([
+    $labelStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $color,
             shades: [400, 600],
@@ -111,7 +109,7 @@
         ) => $color !== 'gray',
     ]);
 
-    $iconClasses = Arr::toCssClasses([
+    $iconClasses = \Illuminate\Support\Arr::toCssClasses([
         'fi-link-icon',
         match ($iconSize) {
             IconSize::Small => 'h-4 w-4',
@@ -125,7 +123,7 @@
         },
     ]);
 
-    $iconStyles = Arr::toCssStyles([
+    $iconStyles = \Illuminate\Support\Arr::toCssStyles([
         \Filament\Support\get_color_css_variables(
             $color,
             shades: [400, 600],
@@ -227,7 +225,7 @@
                 <x-filament::icon
                     :attributes="
                         \Filament\Support\prepare_inherited_attributes(
-                            new ComponentAttributeBag([
+                            new \Illuminate\View\ComponentAttributeBag([
                                 'alias' => $iconAlias,
                                 'icon' => $icon,
                                 'wire:loading.remove.delay.' . config('filament.livewire_loading_delay', 'default') => $hasLoadingIndicator,
@@ -244,7 +242,7 @@
                 <x-filament::loading-indicator
                     :attributes="
                         \Filament\Support\prepare_inherited_attributes(
-                            new ComponentAttributeBag([
+                            new \Illuminate\View\ComponentAttributeBag([
                                 'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                                 'wire:target' => $loadingIndicatorTarget,
                             ])
@@ -265,7 +263,7 @@
                 <x-filament::icon
                     :attributes="
                         \Filament\Support\prepare_inherited_attributes(
-                            new ComponentAttributeBag([
+                            new \Illuminate\View\ComponentAttributeBag([
                                 'alias' => $iconAlias,
                                 'icon' => $icon,
                                 'wire:loading.remove.delay.' . config('filament.livewire_loading_delay', 'default') => $hasLoadingIndicator,
@@ -282,7 +280,7 @@
                 <x-filament::loading-indicator
                     :attributes="
                         \Filament\Support\prepare_inherited_attributes(
-                            new ComponentAttributeBag([
+                            new \Illuminate\View\ComponentAttributeBag([
                                 'wire:loading.delay.' . config('filament.livewire_loading_delay', 'default') => '',
                                 'wire:target' => $loadingIndicatorTarget,
                             ])

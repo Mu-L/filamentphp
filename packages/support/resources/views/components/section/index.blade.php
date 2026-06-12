@@ -22,8 +22,6 @@
 ])
 
 @php
-    use Illuminate\Contracts\Support\Htmlable;
-
     $hasDescription = filled((string) $description);
     $hasHeading = filled($heading);
     $hasIcon = filled($icon);
@@ -42,11 +40,11 @@
         );
     }
 
-    $hasHeaderActions = $headerActions instanceof Htmlable
+    $hasHeaderActions = $headerActions instanceof \Illuminate\Contracts\Support\Htmlable
         ? ! \Filament\Support\is_slot_empty($headerActions)
         : filled($headerActions);
 
-    $hasFooterActions = $footerActions instanceof Htmlable
+    $hasFooterActions = $footerActions instanceof \Illuminate\Contracts\Support\Htmlable
         ? ! \Filament\Support\is_slot_empty($footerActions)
         : filled($footerActions);
 
@@ -137,7 +135,7 @@
                     <div class="hidden sm:block">
                         <x-filament::actions
                             :actions="$headerActions"
-                            :alignment="Filament\Support\Enums\Alignment::Start"
+                            :alignment="\Filament\Support\Enums\Alignment::Start"
                             x-on:click.stop=""
                         />
                     </div>
@@ -160,7 +158,7 @@
                 <div class="sm:hidden">
                     <x-filament::actions
                         :actions="$headerActions"
-                        :alignment="Filament\Support\Enums\Alignment::Start"
+                        :alignment="\Filament\Support\Enums\Alignment::Start"
                         x-on:click.stop=""
                     />
                 </div>

@@ -44,7 +44,7 @@
     </div>
 
     <div class="flex gap-x-3">
-        {{ FilamentView::renderHook(TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE, scopes: static::class) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE, scopes: static::class) }}
 
         <div class="flex gap-x-3">
             <x-filament::link
@@ -55,7 +55,7 @@
                 {{-- Make sure the Alpine attributes get re-evaluated after a Livewire request: --}}
                 :wire:key="$this->getId() . 'table.selection.indicator.actions.select-all.' . $allSelectableRecordsCount . '.' . $page"
             >
-                {{ trans_choice('filament-tables::table.selection_indicator.actions.select_all.label', $allSelectableRecordsCount, ['count' => Number::format($allSelectableRecordsCount, locale: $locale)]) }}
+                {{ trans_choice('filament-tables::table.selection_indicator.actions.select_all.label', $allSelectableRecordsCount, ['count' => \Illuminate\Support\Number::format($allSelectableRecordsCount, locale: $locale)]) }}
             </x-filament::link>
 
             <x-filament::link
@@ -67,7 +67,7 @@
             </x-filament::link>
         </div>
 
-        {{ FilamentView::renderHook(TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER, scopes: static::class) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER, scopes: static::class) }}
 
         {{ $end }}
     </div>

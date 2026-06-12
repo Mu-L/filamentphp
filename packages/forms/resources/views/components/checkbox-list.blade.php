@@ -111,7 +111,7 @@
                         type="search"
                         :attributes="
                             \Filament\Support\prepare_inherited_attributes(
-                                new ComponentAttributeBag([
+                                new \Illuminate\View\ComponentAttributeBag([
                                     'x-model.debounce.' . $getSearchDebounce() => 'search',
                                 ])
                             )

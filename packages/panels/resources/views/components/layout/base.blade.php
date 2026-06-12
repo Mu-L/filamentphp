@@ -12,7 +12,7 @@
     ])
 >
     <head>
-        {{ FilamentView::renderHook(PanelsRenderHook::HEAD_START, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::HEAD_START, scopes: $livewire?->getRenderHookScopes()) }}
 
         <meta charset="utf-8" />
         <meta name="csrf-token" content="{{ csrf_token() }}" />
@@ -31,7 +31,7 @@
             {{ filled($title) ? "{$title} - " : null }} {{ $brandName }}
         </title>
 
-        {{ FilamentView::renderHook(PanelsRenderHook::STYLES_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::STYLES_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
 
         <style>
             [x-cloak=''],
@@ -69,7 +69,7 @@
 
         @stack('styles')
 
-        {{ FilamentView::renderHook(PanelsRenderHook::STYLES_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::STYLES_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
 
         @if (! filament()->hasDarkMode())
             <script>
@@ -100,7 +100,7 @@
             </script>
         @endif
 
-        {{ FilamentView::renderHook(PanelsRenderHook::HEAD_END, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::HEAD_END, scopes: $livewire?->getRenderHookScopes()) }}
     </head>
 
     <body
@@ -112,13 +112,13 @@
                     'min-h-screen bg-gray-50 font-normal text-gray-950 antialiased dark:bg-gray-950 dark:text-white',
                 ]) }}
     >
-        {{ FilamentView::renderHook(PanelsRenderHook::BODY_START, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::BODY_START, scopes: $livewire?->getRenderHookScopes()) }}
 
         {{ $slot }}
 
-        @livewire(Notifications::class)
+        @livewire(Filament\Livewire\Notifications::class)
 
-        {{ FilamentView::renderHook(PanelsRenderHook::SCRIPTS_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SCRIPTS_BEFORE, scopes: $livewire?->getRenderHookScopes()) }}
 
         @filamentScripts(withCore: true)
 
@@ -138,8 +138,8 @@
 
         @stack('scripts')
 
-        {{ FilamentView::renderHook(PanelsRenderHook::SCRIPTS_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SCRIPTS_AFTER, scopes: $livewire?->getRenderHookScopes()) }}
 
-        {{ FilamentView::renderHook(PanelsRenderHook::BODY_END, scopes: $livewire?->getRenderHookScopes()) }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::BODY_END, scopes: $livewire?->getRenderHookScopes()) }}
     </body>
 </html>

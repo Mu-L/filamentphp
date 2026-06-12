@@ -21,7 +21,6 @@
 ])
 
 @php
-    use Filament\Infolists\Components\Actions\Action;
     use Filament\Support\Enums\Alignment;
 
     if ($entry) {
@@ -49,7 +48,7 @@
 
     $hintActions = array_filter(
         $hintActions ?? [],
-        fn (Action $hintAction): bool => $hintAction->isVisible(),
+        fn (\Filament\Infolists\Components\Actions\Action $hintAction): bool => $hintAction->isVisible(),
     );
 @endphp
 
@@ -78,7 +77,7 @@
                     'flex items-center gap-x-3',
                     'justify-between' => (! $labelSrOnly) || $labelPrefix || $labelSuffix,
                     'justify-end' => $labelSrOnly && ! ($labelPrefix || $labelSuffix),
-                    ($label instanceof ComponentSlot) ? $label->attributes->get('class') : null,
+                    ($label instanceof \Illuminate\View\ComponentSlot) ? $label->attributes->get('class') : null,
                 ])
             >
                 @if ($label && (! $labelSrOnly))
