@@ -39,7 +39,7 @@ return [
                     ],
 
                 ],
-                
+
                 'messages' => [
 
                     'invalid' => 'Il codice inserito non è valido.',
